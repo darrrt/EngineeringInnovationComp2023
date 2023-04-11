@@ -1,5 +1,5 @@
 #include <Stream.h>
-
+#define OUTPUT_LOG 1
 // String inString[128];
 // short readinLen=0;
 #include<Arduino.h>
@@ -469,22 +469,7 @@ void sensors_read()
   Serial.print(digitalRead(S7));
   Serial.println(digitalRead(trig));
 }
-void commu()
-{
-  while (1)
-  {
-    allstop();
-    if (Serial.available() > 0)
-    {
-      var = Serial.read();
-      if (var == '1')
-      {
-        var = 0;
-        break;
-      }
-    }
-  }
-}
+
 void back()
 {
   linear_vel_x = -0.2; // m/s
@@ -664,7 +649,9 @@ void setup()
     /* code */
   }
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE); // 初始化软串口的波特率
+  #ifdef OUTPUT_LOG
   DEBUG_SERIAL.println("SetServoAngle");
+  #endif
   // 电机初始化
   motors.init();
   pinMode(49, INPUT);
@@ -710,14 +697,16 @@ void setup()
   driver.en_spreadCycle(false); // Toggle spreadCycle on TMC2208/2209/2224
   driver.pwm_autoscale(true);   // Needed for stealthChop
   digitalWrite(EN_PIN, LOW);
-
-  Serial.println(F("InitializingI2Cdevices..."));
   mpu.initialize();
+  #ifdef OUTPUT_LOG
+  Serial.println(F("InitializingI2Cdevices..."));
+
   Serial.println(F("TestingDeviceConnections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050connectionsuccessful")
                                       : F("MPU6050connectionfailed"));
   // load and configure the DMP
   Serial.println(F("InitializingDMP..."));
+  #endif
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
@@ -734,10 +723,12 @@ void setup()
     // Calibration Time: generate offsets and calibrate our MPU6050
     mpu.CalibrateAccel(6);
     mpu.CalibrateGyro(6);
-    Serial.println();
     mpu.PrintActiveOffsets();
     // turn on the DMP, now that it's ready
+    #ifdef OUTPUT_LOG
+    Serial.println();
     Serial.println(F("EnablingDMP..."));
+    #endif
     mpu.setDMPEnabled(true);
 
     dmpReady = true;
@@ -750,17 +741,21 @@ void setup()
     // 1 = initial memory load failed
     // 2 = DMP configuration updates failed
     // (if it's going to break, usually the code will be 1)
+    #ifdef OUTPUT_LOG
     Serial.print(F("DMPInitializationFailedCode"));
     Serial.print(devStatus);
     Serial.println(F(")"));
+    #endif
+
   }
 
   delay(100);                              // 延时等待初始化完成
   FlexiTimer2::set(TIMER_PERIOD, control); // 10毫秒定时中断函数
   FlexiTimer2::start();                    // 中断使能
   delay(100);                              // 延时等待初始化完成
-
+  #ifdef OUTPUT_LOG
   Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
+  #endif
   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
 }
 void loop()

@@ -29,11 +29,14 @@ def setCatchAngel1():
 	ServoControl(SERVO3_0,SERVO3)
 	for i in range(SERVO0_0,SERVO0_1,-2):
 		ServoControl(i,SERVO0)
-	time.sleep(3)
+		time.sleep(0.02)
+	# time.sleep(3)
 	for i in range(SERVO2_0,SERVO2_1,-2):
 		ServoControl(i,SERVO2)
+		time.sleep(0.02)
 	for i in range(SERVO1_0,SERVO1_1,2):
 		ServoControl(i,SERVO1)
+		time.sleep(0.02)
 def CatchThing():
 	for i in range(SERVO3_0,SERVO3_1,5):
 		ServoControl(i,SERVO3)
