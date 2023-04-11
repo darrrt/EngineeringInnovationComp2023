@@ -3,58 +3,58 @@ import serial
 import struct
 import os 
 import time 
-import serial_asyncio
-import asyncio
+# import serial_asyncio
+# import asyncio
 import binascii
-class OutputProtocol(asyncio.Protocol):
-    def __init__(self) -> None:
-        super().__init__()
-        # self.readin=""
-        self.transport = None
-    def connection_made(self, transport):
-        self.transport = transport
-        self.buf = bytes()
-        print('port opened', transport)
-        transport.serial.rts = False  # You can manipulate Serial object via transport
-        # transport.write(b'I,R123.32,T1235555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555\n')  # Write serial data via transport
+# class OutputProtocol(asyncio.Protocol):
+#     def __init__(self) -> None:
+#         super().__init__()
+#         # self.readin=""
+#         self.transport = None
+#     def connection_made(self, transport):
+#         self.transport = transport
+#         self.buf = bytes()
+#         print('port opened', transport)
+#         transport.serial.rts = False  # You can manipulate Serial object via transport
+#         # transport.write(b'I,R123.32,T1235555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555\n')  # Write serial data via transport
 
-    # def data_received(self, data):
-    #     print('data received', repr(data),data.decode("ascii"))
-    #     # self.readin+=data.decode("utf-8")
+#     # def data_received(self, data):
+#     #     print('data received', repr(data),data.decode("ascii"))
+#     #     # self.readin+=data.decode("utf-8")
 
-    #     if b'\n' in self.readin:
-    #         print(self.readin)
-    #         self.readin=""
-    def data_received(self, data):
-        """Store characters until a newline is received.
-        """
-        self.buf += data
-        print(f'Reader received: {data.decode()}')
-        if b'\n' in self.buf:
-            lines = self.buf.split(b'\n')
-            self.buf = lines[-1]  # whatever was left over
-            for line in lines[:-1]:
-                print(f'Reader received: {line.decode()}')
-                # self.msgs_recvd += 1
-        # if self.msgs_recvd == 4:
-        #     self.transport.close()
-    def data_decode(self):
-        pass 
-    def data_write(self,data):
-        self.transport.write(data)  # Write serial data via 
-        print(data)
+#     #     if b'\n' in self.readin:
+#     #         print(self.readin)
+#     #         self.readin=""
+#     def data_received(self, data):
+#         """Store characters until a newline is received.
+#         """
+#         self.buf += data
+#         print(f'Reader received: {data.decode()}')
+#         if b'\n' in self.buf:
+#             lines = self.buf.split(b'\n')
+#             self.buf = lines[-1]  # whatever was left over
+#             for line in lines[:-1]:
+#                 print(f'Reader received: {line.decode()}')
+#                 # self.msgs_recvd += 1
+#         # if self.msgs_recvd == 4:
+#         #     self.transport.close()
+#     def data_decode(self):
+#         pass 
+#     def data_write(self,data):
+#         self.transport.write(data)  # Write serial data via 
+#         print(data)
 
-    def connection_lost(self, exc):
-        print('port closed')
-        self.transport.loop.stop()
+#     def connection_lost(self, exc):
+#         print('port closed')
+#         self.transport.loop.stop()
 
-    def pause_writing(self):
-        print('pause writing')
-        print(self.transport.get_write_buffer_size())
+#     def pause_writing(self):
+#         print('pause writing')
+#         print(self.transport.get_write_buffer_size())
 
-    def resume_writing(self):
-        print(self.transport.get_write_buffer_size())
-        print('resume writing')
+#     def resume_writing(self):
+#         print(self.transport.get_write_buffer_size())
+#         print('resume writing')
 
 class uartSerial():
     def __init__(self,portx="/dev/ttyACM0",bps=115200) -> None:
@@ -171,6 +171,8 @@ if __name__=='__main__':
     # time.sleep(0.002)
     # ser.sendBatch(2,[0,24,1,32])
     # for i in range(15):
+    print(ser.receive())
+    print("----------------------------------")
     for i in range(10):
         ser.send(b'I,R123.32,T123!')
         # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
