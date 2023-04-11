@@ -458,113 +458,6 @@ void track()
   }
 }
 
-void setup()
-{
-
-  Serial.begin(115200);
-  while (Serial.read() >= 0)
-  {
-    /* code */
-  }
-  DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE); // 初始化软串口的波特率
-  DEBUG_SERIAL.println("SetServoAngle");
-  // 电机初始化
-  motors.init();
-  pinMode(49, INPUT);
-  pinMode(47, INPUT);
-  pinMode(43, INPUT);
-  pinMode(41, INPUT);
-  pinMode(39, INPUT);
-  pinMode(37, INPUT);
-  pinMode(35, INPUT);
-  pinMode(31, INPUT);
-  // 陀螺仪IIC初始化
-  //  join I2C bus (I2Cdev library doesn't do this automatically)
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-  Wire.begin();
-  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having
-                         // compilation difficulties
-#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-  Fastwire::setup(400, true);
-#endif
-
-  Serial.begin(115200);
-  while (!Serial)
-    ;
-
-  pinMode(EN_PIN, OUTPUT);
-  pinMode(STEP_PIN, OUTPUT);
-  pinMode(DIR_PIN, OUTPUT);
-  digitalWrite(EN_PIN, HIGH); // Enable driver in hardware
-  digitalWrite(DIR_PIN, LOW);
-  digitalWrite(STEP_PIN, LOW);
-  // Enable one according to your setup
-  // SPI.begin();                    // SPI drivers
-  //  Serial.begin(115200);
-  SERIAL_PORT.begin(115200); // HW UART drivers
-                             // driver.beginSerial(115200);     // SW UART drivers
-  driver.begin();            //  SPI: Init CS pins and possible SW SPI pins
-                             // UART: Init SW UART (if selected) with default 115200 baudrate
-  driver.toff(5);            // Enables driver in software
-  driver.rms_current(600);   // Set motor RMS current
-  driver.microsteps(16);     // Set microsteps to 1/16th
-
-  // driver.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
-  driver.en_spreadCycle(false); // Toggle spreadCycle on TMC2208/2209/2224
-  driver.pwm_autoscale(true);   // Needed for stealthChop
-  digitalWrite(EN_PIN, LOW);
-
-  Serial.println(F("InitializingI2Cdevices..."));
-  mpu.initialize();
-  Serial.println(F("TestingDeviceConnections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050connectionsuccessful")
-                                      : F("MPU6050connectionfailed"));
-  // load and configure the DMP
-  Serial.println(F("InitializingDMP..."));
-  devStatus = mpu.dmpInitialize();
-
-  // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXAccelOffset(-522);
-  mpu.setYAccelOffset(1047);
-  mpu.setZAccelOffset(1244);
-  mpu.setXGyroOffset(126);
-  mpu.setYGyroOffset(-1);
-  mpu.setZGyroOffset(-8);
-
-  // make sure it worked (returns 0 if so)
-  if (devStatus == 0)
-  {
-    // Calibration Time: generate offsets and calibrate our MPU6050
-    mpu.CalibrateAccel(6);
-    mpu.CalibrateGyro(6);
-    Serial.println();
-    mpu.PrintActiveOffsets();
-    // turn on the DMP, now that it's ready
-    Serial.println(F("EnablingDMP..."));
-    mpu.setDMPEnabled(true);
-
-    dmpReady = true;
-    // get expected DMP packet size for later comparison
-    packetSize = mpu.dmpGetFIFOPacketSize();
-  }
-  else
-  {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
-    Serial.print(F("DMPInitializationFailedCode"));
-    Serial.print(devStatus);
-    Serial.println(F(")"));
-  }
-
-  delay(100);                              // 延时等待初始化完成
-  FlexiTimer2::set(TIMER_PERIOD, control); // 10毫秒定时中断函数
-  FlexiTimer2::start();                    // 中断使能
-  delay(100);                              // 延时等待初始化完成
-
-  Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
-}
 void sensors_read()
 {
   Serial.print(digitalRead(S1));
@@ -762,6 +655,114 @@ int serialRxFlag = 0; // 串口接收完标志
 // char rou1[10], theta1[10];
 // float rou, theta;
 
+void setup()
+{
+
+  Serial.begin(115200);
+  while (Serial.read() >= 0)
+  {
+    /* code */
+  }
+  DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE); // 初始化软串口的波特率
+  DEBUG_SERIAL.println("SetServoAngle");
+  // 电机初始化
+  motors.init();
+  pinMode(49, INPUT);
+  pinMode(47, INPUT);
+  pinMode(43, INPUT);
+  pinMode(41, INPUT);
+  pinMode(39, INPUT);
+  pinMode(37, INPUT);
+  pinMode(35, INPUT);
+  pinMode(31, INPUT);
+  // 陀螺仪IIC初始化
+  //  join I2C bus (I2Cdev library doesn't do this automatically)
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+  Wire.begin();
+  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having
+                         // compilation difficulties
+#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+  Fastwire::setup(400, true);
+#endif
+
+  Serial.begin(115200);
+  while (!Serial)
+    ;
+
+  pinMode(EN_PIN, OUTPUT);
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
+  digitalWrite(EN_PIN, HIGH); // Enable driver in hardware
+  digitalWrite(DIR_PIN, LOW);
+  digitalWrite(STEP_PIN, LOW);
+  // Enable one according to your setup
+  // SPI.begin();                    // SPI drivers
+  //  Serial.begin(115200);
+  SERIAL_PORT.begin(115200); // HW UART drivers
+                             // driver.beginSerial(115200);     // SW UART drivers
+  driver.begin();            //  SPI: Init CS pins and possible SW SPI pins
+                             // UART: Init SW UART (if selected) with default 115200 baudrate
+  driver.toff(5);            // Enables driver in software
+  driver.rms_current(600);   // Set motor RMS current
+  driver.microsteps(16);     // Set microsteps to 1/16th
+
+  // driver.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
+  driver.en_spreadCycle(false); // Toggle spreadCycle on TMC2208/2209/2224
+  driver.pwm_autoscale(true);   // Needed for stealthChop
+  digitalWrite(EN_PIN, LOW);
+
+  Serial.println(F("InitializingI2Cdevices..."));
+  mpu.initialize();
+  Serial.println(F("TestingDeviceConnections..."));
+  Serial.println(mpu.testConnection() ? F("MPU6050connectionsuccessful")
+                                      : F("MPU6050connectionfailed"));
+  // load and configure the DMP
+  Serial.println(F("InitializingDMP..."));
+  devStatus = mpu.dmpInitialize();
+
+  // supply your own gyro offsets here, scaled for min sensitivity
+  mpu.setXAccelOffset(-522);
+  mpu.setYAccelOffset(1047);
+  mpu.setZAccelOffset(1244);
+  mpu.setXGyroOffset(126);
+  mpu.setYGyroOffset(-1);
+  mpu.setZGyroOffset(-8);
+
+  // make sure it worked (returns 0 if so)
+  if (devStatus == 0)
+  {
+    // Calibration Time: generate offsets and calibrate our MPU6050
+    mpu.CalibrateAccel(6);
+    mpu.CalibrateGyro(6);
+    Serial.println();
+    mpu.PrintActiveOffsets();
+    // turn on the DMP, now that it's ready
+    Serial.println(F("EnablingDMP..."));
+    mpu.setDMPEnabled(true);
+
+    dmpReady = true;
+    // get expected DMP packet size for later comparison
+    packetSize = mpu.dmpGetFIFOPacketSize();
+  }
+  else
+  {
+    // ERROR!
+    // 1 = initial memory load failed
+    // 2 = DMP configuration updates failed
+    // (if it's going to break, usually the code will be 1)
+    Serial.print(F("DMPInitializationFailedCode"));
+    Serial.print(devStatus);
+    Serial.println(F(")"));
+  }
+
+  delay(100);                              // 延时等待初始化完成
+  FlexiTimer2::set(TIMER_PERIOD, control); // 10毫秒定时中断函数
+  FlexiTimer2::start();                    // 中断使能
+  delay(100);                              // 延时等待初始化完成
+
+  Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
+  memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
+}
 void loop()
 {
   // Serial.print("aaa\n");
@@ -812,7 +813,7 @@ void loop()
         comminfo[i].current=atof(comminfo[i].txt);
       }
 
-      memset(rxBuf, '\0', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
+      memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
       public_instruction = 1;
     }
   }
