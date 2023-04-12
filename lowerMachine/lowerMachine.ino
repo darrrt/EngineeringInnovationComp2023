@@ -1,8 +1,8 @@
 #include <Stream.h>
-#define OUTPUT_LOG 1
+// #define OUTPUT_LOG 1
 // String inString[128];
 // short readinLen=0;
-#include<Arduino.h>
+#include <Arduino.h>
 #include <TMCStepper.h>
 #include <Servo.h>
 #include <Wire.h>
@@ -76,8 +76,6 @@ void StepperControl()
   driver.shaft(shaft);
   digitalWrite(DIR_PIN, shaft);
 }
-
-
 
 #include <SunConfig.h>
 #include <Version.h>
@@ -623,14 +621,14 @@ void MotionControl(double vx, double vy, double vz, double t)
   wait(0.1);
 }
 
-
 unsigned int public_instruction = 0;
 #define INFO_NUM 7
-struct CommInfo{
-  float last,current;
+struct CommInfo
+{
+  float last, current;
   char txt[8];
-}comminfo[INFO_NUM];
-struct CommInfo &vx_delta=comminfo[0], vy_delta=comminfo[1], vw_delta=comminfo[2], t_delta=comminfo[3], stepper_pos=comminfo[4], motion_type=comminfo[5],InsNum=comminfo[6];
+} comminfo[INFO_NUM];
+struct CommInfo &vx_delta = comminfo[0], vy_delta = comminfo[1], vw_delta = comminfo[2], t_delta = comminfo[3], stepper_pos = comminfo[4], motion_type = comminfo[5], InsNum = comminfo[6];
 
 unsigned char rxBuf[64];      // 串口接收缓冲
 unsigned char *pChar = rxBuf; // 字符指针
@@ -649,9 +647,9 @@ void setup()
     /* code */
   }
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE); // 初始化软串口的波特率
-  #ifdef OUTPUT_LOG
+#ifdef OUTPUT_LOG
   DEBUG_SERIAL.println("SetServoAngle");
-  #endif
+#endif
   // 电机初始化
   motors.init();
   pinMode(49, INPUT);
@@ -698,7 +696,7 @@ void setup()
   driver.pwm_autoscale(true);   // Needed for stealthChop
   digitalWrite(EN_PIN, LOW);
   mpu.initialize();
-  #ifdef OUTPUT_LOG
+#ifdef OUTPUT_LOG
   Serial.println(F("InitializingI2Cdevices..."));
 
   Serial.println(F("TestingDeviceConnections..."));
@@ -706,7 +704,7 @@ void setup()
                                       : F("MPU6050connectionfailed"));
   // load and configure the DMP
   Serial.println(F("InitializingDMP..."));
-  #endif
+#endif
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
@@ -724,11 +722,11 @@ void setup()
     mpu.CalibrateAccel(6);
     mpu.CalibrateGyro(6);
     mpu.PrintActiveOffsets();
-    // turn on the DMP, now that it's ready
-    #ifdef OUTPUT_LOG
+// turn on the DMP, now that it's ready
+#ifdef OUTPUT_LOG
     Serial.println();
     Serial.println(F("EnablingDMP..."));
-    #endif
+#endif
     mpu.setDMPEnabled(true);
 
     dmpReady = true;
@@ -737,25 +735,24 @@ void setup()
   }
   else
   {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
-    #ifdef OUTPUT_LOG
+// ERROR!
+// 1 = initial memory load failed
+// 2 = DMP configuration updates failed
+// (if it's going to break, usually the code will be 1)
+#ifdef OUTPUT_LOG
     Serial.print(F("DMPInitializationFailedCode"));
     Serial.print(devStatus);
     Serial.println(F(")"));
-    #endif
-
+#endif
   }
 
   delay(100);                              // 延时等待初始化完成
   FlexiTimer2::set(TIMER_PERIOD, control); // 10毫秒定时中断函数
   FlexiTimer2::start();                    // 中断使能
   delay(100);                              // 延时等待初始化完成
-  #ifdef OUTPUT_LOG
+#ifdef OUTPUT_LOG
   Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
-  #endif
+#endif
   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
 }
 void loop()
@@ -775,7 +772,7 @@ void loop()
       *pChar++ = inByte; // 保存一个字符
       if (rxBuf[0] != 'I')
       {
-        memset(rxBuf, '\0', sizeof(rxBuf)); // 数组清零，不清的话串口会有问
+        memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问
         pChar = &rxBuf[0];                  // 指针回指，准备下次接收题
       }
 
@@ -790,22 +787,25 @@ void loop()
   { // 处理接收的字符串
     serialRxFlag = 0;
     pChar = &rxBuf[0]; // 指针回指，准备下次接收
-    // Serial.print("串口发送的命令串:"); // 调试时可以取消注释
+// Serial.print("串口发送的命令串:"); // 调试时可以取消注释
+#ifdef OUTPUT_LOG
     Serial.write(rxBuf, 50);
     Serial.write('!');
+#endif
     // Serial.println();
     // 串口发送例子N,P6.0,I2.5,D0.6,S45.5,M1,T50,R1    第一个字母区别是内回路参数还是外回路参数，注意要发送新行
     // 串口发送例子W,P6.0,I2.5,D0.6,S45.5,M1,T50       第一个字母区别是内回路参数还是外回路参数，注意要发送新行
     if (rxBuf[0] == 'I')
-    { // 解析外回路命令
+    { // 解析命令
       // Serial.println("wok");   //调试时可以取消注释
-      sscanf((const char *)rxBuf, "I,X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],P[^'\n']\n", vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt, motion_type.txt);
+      sscanf(rxBuf, "I%[^','],X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],P[^'\n']\n", InsNum.txt,vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt, motion_type.txt);
 
       // 1.%前面的字符为跳过的字符，如果要跳过多个字符，应全部放在%之前；
       // 2.^为读取的字符串，后面所跟字符为截至字符，就是到逗号为止且丢掉逗号；
       // 3.^须用[]括起，所以一定要核对[]符号的数量
-      for (int i=0;i<INFO_NUM;i++){
-        comminfo[i].current=atof(comminfo[i].txt);
+      for (int i = 0; i < INFO_NUM; i++)
+      {
+        comminfo[i].current = atof(comminfo[i].txt);
       }
 
       memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
@@ -815,15 +815,21 @@ void loop()
   if (public_instruction)
   {
     public_instruction = 0;
-    Serial.print("as");
+    // Serial.print("as");
     // MotionControl(0, 0, 3.14, 10);
     // vx vy vw t
-  }
-  Serial.print("F");
-  Serial.print(int(InsNum.current));
-  for (int i=0;i<INFO_NUM;i++){
-    if(comminfo[i].current!=-999){
-      comminfo[i].last=comminfo[i].current;
+    Serial.write(rxBuf, 50);
+    Serial.write('!');
+    Serial.print("F!");
+    Serial.print(InsNum.current);
+    Serial.print(InsNum.txt);
+    // InsNum.txt
+    for (int i = 0; i < INFO_NUM; i++)
+    {
+      if (comminfo[i].current != -999)
+      {
+        comminfo[i].last = comminfo[i].current;
+      }
     }
   }
 }

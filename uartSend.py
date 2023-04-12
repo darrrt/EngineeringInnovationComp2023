@@ -171,10 +171,11 @@ if __name__=='__main__':
     # time.sleep(0.002)
     # ser.sendBatch(2,[0,24,1,32])
     # for i in range(15):
+    # time.sleep(2)
     print(ser.receive())
     print("----------------------------------")
     for i in range(10):
-        ser.send(b'I,R123.32,T123!')
+        ser.send(b'I%d,X87,Y76,W56,T6,O5,P3!'%(i))
         # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
         # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
         time.sleep(0.1)

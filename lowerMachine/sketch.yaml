@@ -1,0 +1,3 @@
+default_port: /dev/ttyACM0
+default_protocol: serial
+default_fqbn: arduino:avr:mega
