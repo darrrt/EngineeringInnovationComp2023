@@ -708,12 +708,12 @@ void setup()
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXAccelOffset(-522);
-  mpu.setYAccelOffset(1047);
-  mpu.setZAccelOffset(1244);
-  mpu.setXGyroOffset(126);
-  mpu.setYGyroOffset(-1);
-  mpu.setZGyroOffset(-8);
+  mpu.setXAccelOffset(80);
+  mpu.setYAccelOffset(777);
+  mpu.setZAccelOffset(1554);
+  mpu.setXGyroOffset(21);
+  mpu.setYGyroOffset(-50);
+  mpu.setZGyroOffset(31);
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0)
@@ -721,7 +721,7 @@ void setup()
     // Calibration Time: generate offsets and calibrate our MPU6050
     mpu.CalibrateAccel(6);
     mpu.CalibrateGyro(6);
-    mpu.PrintActiveOffsets();
+    //mpu.PrintActiveOffsets();
 // turn on the DMP, now that it's ready
 #ifdef OUTPUT_LOG
     Serial.println();
@@ -754,20 +754,24 @@ void setup()
   Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
 #endif
   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
+  while (!(Serial.available() > 0))
+  {
+  // Serial.write("wait\n");
+  }
 }
 void loop()
 {
   // Serial.print("aaa\n");
-  while (!(Serial.available() > 0))
-  {
-    // Serial.write("wait\n");
-  }
+  // while (!(Serial.available() > 0))
+  // {
+  //   // Serial.write("wait\n");
+  // }
   while (Serial.available() > 0)
   {
     // Serial.print("j");
     int inByte = Serial.read(); // 串口读进来的始终是一个整数，即ASCII码值80（助手以ASCII码发送，如'P'）
     // Serial.write(inByte);
-    if (('0' <= inByte and '9' >= inByte) or ('A' <= inByte or inByte <= 'Z') or inByte == ',' or inByte == '\n')
+    if (('0' <= inByte and '9' >= inByte) or ('A' <= inByte or inByte <= 'Z') or inByte == ',' or inByte == '\n' or inByte == '!')
     {
       *pChar++ = inByte; // 保存一个字符
       if (rxBuf[0] != 'I')
@@ -776,7 +780,8 @@ void loop()
         pChar = &rxBuf[0];                  // 指针回指，准备下次接收题
       }
 
-      if (inByte == '\n' or inByte == '!')
+      // if (inByte == '\n' or inByte == '!')
+      if (inByte == '!')
       { // 检查是不是最后一个字符：回车换行符0x0D 0x0A
         serialRxFlag = 1;
       }
@@ -792,6 +797,8 @@ void loop()
     Serial.write(rxBuf, 50);
     Serial.write('!');
 #endif
+    // Serial.write(rxBuf, 50);
+    // Serial.write('!');
     // Serial.println();
     // 串口发送例子N,P6.0,I2.5,D0.6,S45.5,M1,T50,R1    第一个字母区别是内回路参数还是外回路参数，注意要发送新行
     // 串口发送例子W,P6.0,I2.5,D0.6,S45.5,M1,T50       第一个字母区别是内回路参数还是外回路参数，注意要发送新行
@@ -830,14 +837,16 @@ void loop()
     // vx vy vw t
     // Serial.write(rxBuf, 50);
     // Serial.write('!');
+    Serial.print(InsNum.current);
     Serial.print("!F!");
-    // Serial.print(InsNum.current);
+    
     // Serial.print(InsNum.txt);
     // Serial.print(vx_delta.current);
     // Serial.print(vx_delta.txt);
     // Serial.print(vy_delta.current);
     // Serial.print(vy_delta.txt);
     // InsNum.txt
+    Serial.print("\n");
     for (int i = 0; i < INFO_NUM; i++)
     {
       if (comminfo[i].current != -999)

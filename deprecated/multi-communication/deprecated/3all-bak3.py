@@ -10,15 +10,15 @@ import pyzbar.pyzbar as pyzbar
 import RPi.GPIO as GPIO   #先要导入模块
 # 17 27 22 从近到远 1 2 3
 ##BCM 对应 GPIO numbers , BOARD 对应 physical numbers。 
-GPIO.setmode(GPIO.BCM)
+# GPIO.setmode(GPIO.BCM)
 # GPIO.setwarnings(False)
 # GPIO.setmode(2,GPIO.OUT)    #把引脚 2  设置为输出模式
-GPIO.setup(15,GPIO.IN,pull_up_down=GPIO.PUD_UP)     #把引脚 3 设置为输入模式
+# GPIO.setup(15,GPIO.IN,pull_up_down=GPIO.PUD_UP)     #把引脚 3 设置为输入模式
 # GPIO.setup(18,GPIO.OUT)
 
-GPIO.setup(17,GPIO.OUT)
-GPIO.setup(27,GPIO.OUT)
-GPIO.setup(22,GPIO.OUT)
+# GPIO.setup(17,GPIO.OUT)
+# GPIO.setup(27,GPIO.OUT)
+# GPIO.setup(22,GPIO.OUT)
 pos=[17,27,22]
 reader = zxing.BarCodeReader()
 log_counter = 0
@@ -173,21 +173,21 @@ if __name__ == "__main__":
     # catch_picture()
     # scanQRCode(IMG_PATH)
     # exit()
-    GPIO.output(17,False)
-    for i in range(3):
-        GPIO.output(pos[i],False)
+    # GPIO.output(17,False)
+    # for i in range(3):
+    #     GPIO.output(pos[i],False)
     # print(classify_color())
     # print(scanQRCode(IMG_PATH))
     # exit()
     # sock.connect((HOST_MAC_ADDR, port))  # 连接蓝牙
     logPrinter('waiting press')
     
-    while(GPIO.input(15)):
-        pass
+    # while(GPIO.input(15)):
+    #     pass
     start_time = time.time()
     logPrinter('开始')
     # log.write(str())
-    GPIO.output(17,True)
+    # GPIO.output(17,True)
     f = open('0.txt', 'w', encoding='gbk')
     f.write(('<A>'+'start'))
     f.close()
@@ -202,7 +202,7 @@ if __name__ == "__main__":
             # logPrinter('直线')
             pass
         elif 4.5<now_time and now_time<12 and qr_ed==0:
-            GPIO.output(17,False)
+            # GPIO.output(17,False)
             logPrinter('拍二维码')
             catch_picture()
             
@@ -296,15 +296,16 @@ if __name__ == "__main__":
                     catch_ed1=1
                     for i in range(3):
                         if(rgb[i]):
-                            GPIO.output(pos[np.sum(np.nonzero((order[i]-order)>0))],True)
+                            # GPIO.output(pos[np.sum(np.nonzero((order[i]-order)>0))],True)
                             logPrinter('color   '+str(rgb[i])+'|  pos   '+str(np.sum(np.nonzero((order[i]-order)>0)))+'|   1') 
                             # log.write(now_time)
                             # log.write('color   '+str(rgb[i])+'|  pos   '+str(np.sum(np.nonzero((order-order[i])>0)))+'|   1') 
             except:
                 pass
         elif 68<now_time and now_time<70:
-            for i in range(3):
-                GPIO.output(pos[i],False)
+            pass
+            # for i in range(3):
+            #     GPIO.output(pos[i],False)
         elif 170<now_time and now_time<180 and catch_ed2==0:
             logPrinter('拍物品2')
             catch_picture()
@@ -316,7 +317,7 @@ if __name__ == "__main__":
                     catch_ed1=1
                     for i in range(3):
                         if(rgb[i]):
-                            GPIO.output(pos[np.sum(np.nonzero((order[i]-order)>0))],True)
+                            # GPIO.output(pos[np.sum(np.nonzero((order[i]-order)>0))],True)
                             logPrinter('color   '+str(rgb[i])+'|  pos   '+str(np.sum(np.nonzero((order[i]-order)>0)))+'|   1') 
                             # log.write(now_time)
                             # log.write('color   '+str(rgb[i])+'|  pos   '+str(np.sum(np.nonzero((order-order[i])>0)))+'|   1') 
