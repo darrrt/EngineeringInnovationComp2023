@@ -24,7 +24,7 @@ SERVO3=3
 #这里只给函数不讲原理了，大部分人只是用不用懂。要了解原理，就要涉及电信号的时差和角度精度等知识。
 #想了解的可以看板卡的原理说明书。
 def ServoControl(angle,channel):
-	date=int(4096*((angle*6.67)+500)/(3030)+0.5)	
+	date=int(4096*((angle*6.6666666)+500)/(3030)+0.5)	
 	pwm.set_pwm(channel, 0, date)
 def setCatchAngel1():
 	ServoControl(SERVO0_0,SERVO0)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
 	# PlaceThing()
 	# time.sleep(1)
 
-	ServoControl(SERVO0_1,SERVO0)
+	ServoControl(SERVO0_0,SERVO0)
 	ServoControl(SERVO1_0,SERVO1)
 	ServoControl(SERVO2_0,SERVO2)
 	ServoControl(SERVO3_0,SERVO3)

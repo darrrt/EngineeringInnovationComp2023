@@ -628,8 +628,8 @@ struct CommInfo
   float last, current;
   char txt[8];
 } comminfo[INFO_NUM];
-struct CommInfo &vx_delta = comminfo[0], vy_delta = comminfo[1], vw_delta = comminfo[2], t_delta = comminfo[3], stepper_pos = comminfo[4], motion_type = comminfo[5], InsNum = comminfo[6];
-
+struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6];
+// String assistString;
 unsigned char rxBuf[64];      // 串口接收缓冲
 unsigned char *pChar = rxBuf; // 字符指针
 
@@ -805,7 +805,11 @@ void loop()
       // 3.^须用[]括起，所以一定要核对[]符号的数量
       for (int i = 0; i < INFO_NUM; i++)
       {
+        // // comminfo[i].current = comminfo[i].txt.toFloat();
+        // assistString=comminfo[i].txt;
+        // comminfo[i].current=assistString.toFloat();
         comminfo[i].current = atof(comminfo[i].txt);
+        // assistString
       }
 
       memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
@@ -816,13 +820,23 @@ void loop()
   {
     public_instruction = 0;
     // Serial.print("as");
-    // MotionControl(0, 0, 3.14, 10);
+    if(vx_delta.current!=-999 && vy_delta.current!=-999 && vw_delta.current!=-999 && t_delta.current!=-999){
+      MotionControl(vx_delta.current, vy_delta.current, vw_delta.current,t_delta.current);
+    }
+    if(stepper_pos.current!=-999){
+      StepperControl();
+    }
+
     // vx vy vw t
-    Serial.write(rxBuf, 50);
-    Serial.write('!');
-    Serial.print("F!");
-    Serial.print(InsNum.current);
-    Serial.print(InsNum.txt);
+    // Serial.write(rxBuf, 50);
+    // Serial.write('!');
+    Serial.print("!F!");
+    // Serial.print(InsNum.current);
+    // Serial.print(InsNum.txt);
+    // Serial.print(vx_delta.current);
+    // Serial.print(vx_delta.txt);
+    // Serial.print(vy_delta.current);
+    // Serial.print(vy_delta.txt);
     // InsNum.txt
     for (int i = 0; i < INFO_NUM; i++)
     {

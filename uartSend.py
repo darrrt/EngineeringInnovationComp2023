@@ -78,6 +78,7 @@ class uartSerial():
 
         self.currentReadinData=""
         self.serialIn=""
+        self.NthInstruction=0
         pass
     def send(self,value):
         try:
@@ -145,6 +146,9 @@ class uartSerial():
     def close(self):
         self.ser.close()#关闭串口
 
+    def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999):
+        self.NthInstruction+=1
+        self.send(b'I%.2f,X%.2f,Y%.2f,W%.2f,T%.2f,O%.2f,P%.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,mode))
 
 if __name__=='__main__':
 
@@ -175,7 +179,8 @@ if __name__=='__main__':
     print(ser.receive())
     print("----------------------------------")
     for i in range(10):
-        ser.send(b'I%d,X87,Y76,W56,T6,O5,P3!'%(i))
+        # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
+        ser.sendInstruction(2,3,4)
         # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
         # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
         time.sleep(0.1)
