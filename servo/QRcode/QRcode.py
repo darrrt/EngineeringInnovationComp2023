@@ -22,10 +22,10 @@ def classify_color():
     # fram=cv2.contrast
     # cv.imshow('Capture', frame)
     # change to hsv model
-    hsv = cv2.cvtColor(frame, cv.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # get mask 利用inRange()函数和HSV模型中蓝色范围的上下界获取mask，mask中原视频中的蓝色部分会被弄成白色，其他部分黑色。
     mask_b = cv2.inRange(hsv, lower_blue, upper_blue)
-    print(mask_b.shape)
+    # print(mask_b.shape)
     mask_r = cv2.inRange(hsv, lower_red, upper_red)
     mask_g = cv2.inRange(hsv, lower_g,upper_g)
     res_r = cv2.bitwise_and(frame, frame, mask=mask_r)
@@ -50,9 +50,9 @@ def classify_color():
     r_sum=(np.sum(np.nonzero(mask_r))-1)
     g_sum=(np.sum(np.nonzero(mask_g))-1)
     b_sum=(np.sum(np.nonzero(mask_b))-1)
-    x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>200 else -1
-    x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>200 else -1
-    x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>200 else -1
+    x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>100 else -1
+    x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>100 else -1
+    x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>100 else -1
     # res = cv.bitwise_and(frame, frame, mask=mask1)
     # cv.imwrite('det000.jpg',res)
     # # if __name__ == '__main__':
@@ -95,7 +95,9 @@ def catch_picture(IMG_PATH):
     return
 
 if __name__ == '__main__':
-    catch_picture(IMG_PATH_QR)
-    QRScan(IMG_PATH_QR)
+    # catch_picture(IMG_PATH_QR)
+    # QRScan(IMG_PATH_QR)
+    res=classify_color()
+    print(res)
 # mydata=QRScan()
 # print(mydata)

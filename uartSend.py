@@ -189,14 +189,15 @@ if __name__=='__main__':
     # print(ser.receive())
     print("----------------------------------")
     # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
-    ser.sendInstruction(height=10)
+    ser.sendInstruction(height=-10)
 
     print("-------------start---------------------")
     # ser.sendInstruction(0.2,0.2,0,3000)
     # ser.sendInstruction(order=123321)
-    ser.sendInstruction(0.2,0,0,3000)
-    #ser.sendInstruction(0,0.2,0,3000)
-    # ser.sendInstruction(0,0.2,0,3000)
+    ser.sendInstruction(-0.2,0,0,5000)
+    ser.sendInstruction(0,-0.2,0,5000)
+    ser.sendInstruction(0,0.2,0,5000)
+    ser.sendInstruction(0.2,0,0,5000)
     #     # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
     #     # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
     # time.sleep(0.1)

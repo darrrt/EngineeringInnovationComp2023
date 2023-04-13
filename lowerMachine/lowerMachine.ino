@@ -22,9 +22,9 @@ bool shaft = false;
 // #define Servo0 30
 // #define Servo1 31
 // #define Servo2 32
-#define EN_PIN 36   // Enable
-#define DIR_PIN 31  // Direction
-#define STEP_PIN 32 // Step
+#define EN_PIN 26   // Enable
+#define DIR_PIN 27  // Direction
+#define STEP_PIN 28 // Step
 // #define CS_PIN           42 // Chip select
 // #define SW_MOSI          66 // Software Master Out Slave In (MOSI)
 // #define SW_MISO          44 // Software Master In Slave Out (MISO)
@@ -94,14 +94,7 @@ void StepperControl(unsigned int times, bool shaft = 1)
 #endif
 #include <FlexiTimer2.h> //定时中断
 #include "SunConfig.h"
-#define S1 49
-#define S2 47
-#define S3 43
-#define S4 41
-#define S5 39
-#define S6 37
-#define S7 35
-#define trig 30
+
 // 串口总线舵机配置参数
 #define BAUDRATE 115200 // 波特率
 
@@ -444,34 +437,8 @@ void backward()
 //  Serial.println("");
 #endif
 }
-void track()
-{
-  if (S4 == 0 && S5 == 1)
-  {
-    right();
-  }
-  else if (S4 == 0 && S3 == 1)
-  {
-    left();
-  }
-  else
-  {
-    forward();
-  }
-}
-#ifdef OUTPUT_LOG
-void sensors_read()
-{
-  Serial.print(digitalRead(S1));
-  Serial.print(digitalRead(S2));
-  Serial.print(digitalRead(S3));
-  Serial.print(digitalRead(S4));
-  Serial.print(digitalRead(S5));
-  Serial.print(digitalRead(S6));
-  Serial.print(digitalRead(S7));
-  Serial.println(digitalRead(trig));
-}
-#endif
+
+
 void back()
 {
   linear_vel_x = -0.2; // m/s
@@ -631,15 +598,15 @@ void MotionControl(double vx, double vy, double vz, double t)
 
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
-#define TFT_CS     43
-#define TFT_RST    39  // you can also connect this to the Arduino reset
+#define TFT_CS     22
+#define TFT_RST    24  // you can also connect this to the Arduino reset
                       // in which case, set this #define pin to 0!
-#define TFT_DC     41
+#define TFT_DC     23
 // Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 // Option 2: use any pins but a little slower!
-#define TFT_SCLK 49   // set these to be whatever pins you like!
-#define TFT_MOSI 47   // set these to be whatever pins you like!
+#define TFT_SCLK 20   // set these to be whatever pins you like!
+#define TFT_MOSI 21   // set these to be whatever pins you like!
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 void displayTask(long int num=213321){
   tft.drawChar(20+48,0,num/100000+'0',ST7735_WHITE,ST7735_BLACK,2,4);
@@ -656,7 +623,7 @@ unsigned int public_instruction = 0;
 struct CommInfo
 {
   float last, current;
-  char txt[8];
+  char txt[12];
 } comminfo[INFO_NUM];
 struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6],&FetchOrder = comminfo[7];
 // String assistString;
@@ -669,7 +636,7 @@ int serialRxFlag = 0; // 串口接收完标志
 // char rou1[10], theta1[10];
 // float rou, theta;
 // void(* resetFunc) (void) = 0;
-#define START_PIN 30
+#define START_PIN 38
 void start(){
   char press = digitalRead(START_PIN);
   while(!press){
@@ -692,14 +659,14 @@ void setup()
 #endif
   // 电机初始化
   motors.init();
-  pinMode(49, INPUT);
-  pinMode(47, INPUT);
-  pinMode(43, INPUT);
-  pinMode(41, INPUT);
-  pinMode(39, INPUT);
-  pinMode(37, INPUT);
-  pinMode(35, INPUT);
-  pinMode(31, INPUT);
+  // pinMode(49, INPUT);
+  // pinMode(47, INPUT);
+  // pinMode(43, INPUT);
+  // pinMode(41, INPUT);
+  // pinMode(39, INPUT);
+  // pinMode(37, INPUT);
+  // pinMode(35, INPUT);
+  // pinMode(31, INPUT);
   // 陀螺仪IIC初始化
   //  join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -930,7 +897,7 @@ void loop()
         public_instruction = 0;
         // Serial.print('F');
         if (InsNum.current==1){
-          start();
+          // start();
         }
 
         // vx vy vw t
