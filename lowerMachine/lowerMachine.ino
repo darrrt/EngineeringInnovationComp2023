@@ -605,8 +605,8 @@ void MotionControl(double vx, double vy, double vz, double t)
 // Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 // Option 2: use any pins but a little slower!
-#define TFT_SCLK 20   // set these to be whatever pins you like!
-#define TFT_MOSI 21   // set these to be whatever pins you like!
+#define TFT_SCLK 34   // set these to be whatever pins you like!
+#define TFT_MOSI 35   // set these to be whatever pins you like!
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 void displayTask(long int num=213321){
   tft.drawChar(20+48,0,num/100000+'0',ST7735_WHITE,ST7735_BLACK,2,4);
