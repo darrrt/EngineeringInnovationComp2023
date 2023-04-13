@@ -13,9 +13,9 @@ SERVO0_3=98
 SERVO1_0=5
 SERVO1_1=300
 SERVO1_2=150
-SERVO2_0=170
-SERVO2_1=0
-SERVO2_2=90
+SERVO2_0=260
+SERVO2_1=90
+SERVO2_2=180
 SERVO3_0=150
 SERVO3_1=185
 SERVO3_2=120
@@ -42,6 +42,9 @@ def setCatchAngel0(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO1_0,SERVO1)
 	ServoControl(SERVO2_0,SERVO2)
 	ServoControl(SERVO3_0,SERVO3)
+	for i in range(SERVO1_0,SERVO1_0+20,2):
+		ServoControl(i,SERVO1)
+		time.sleep(0.02)
 	for i in range(SERVO2_0,SERVO2_2,-2):
 		ServoControl(i,SERVO2)
 		time.sleep(0.02)
@@ -49,20 +52,23 @@ def setCatchAngel0(SERVO0_0,SERVO0_4):
 		ServoControl(i,SERVO0)
 		time.sleep(0.02)
 	PlaceThing(SERVO3_0,SERVO3_2)
-	for i in range(SERVO2_2,SERVO2_0,2):
+	for i in range(SERVO2_2,SERVO2_0-10,2):
 		ServoControl(i,SERVO2)
 		time.sleep(0.02)
 def setPlaceAngel0(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_4,SERVO0)
-	ServoControl(SERVO1_0,SERVO1)
-	ServoControl(SERVO2_0,SERVO2)
+	ServoControl(SERVO1_0+20,SERVO1)
+	ServoControl(SERVO2_0-10,SERVO2)
 	ServoControl(SERVO3_2,SERVO3)
 	CatchThing(SERVO3_2,SERVO3_1)
-	for i in range(SERVO2_0,SERVO2_2-20,-2):
+	for i in range(SERVO2_0-10,SERVO2_2-20,-2):
 		ServoControl(i,SERVO2)
 		time.sleep(0.02)
 	for i in range(SERVO0_4,SERVO0_0,1):
 		ServoControl(i,SERVO0)
+		time.sleep(0.02)
+	for i in range(SERVO1_0+20,SERVO1_0,-2):
+		ServoControl(i,SERVO1)
 		time.sleep(0.02)
 	for i in range(SERVO2_2-20,SERVO2_0,2):
 		ServoControl(i,SERVO2)
@@ -151,9 +157,13 @@ if __name__ == '__main__':
 	# ServoControl(5,SERVO1)
 	# ServoControl(30,SERVO0)
 
-	setCatchAngel0(SERVO0_0l,SERVO0_1)
-	time.sleep(1)
-	setPlaceAngel0(SERVO0_0l,SERVO0_1)
+	ServoControl(SERVO0_2,SERVO0)
+	ServoControl(SERVO1_2,SERVO1)
+	ServoControl(SERVO2_1,SERVO2)
+
+	# setCatchAngel0(SERVO0_0l,SERVO0_2)
+	# time.sleep(1)
+	# setPlaceAngel0(SERVO0_0l,SERVO0_2)
 
 	# setRecognize(SERVO0_0l,SERVO0_1)
 	# time.sleep(1)

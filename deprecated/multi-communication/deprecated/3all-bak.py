@@ -7,24 +7,13 @@ import time
 import cv2 as cv
 import os
 import pyzbar.pyzbar as pyzbar
-import RPi.GPIO as GPIO   #先要导入模块
-# 17 27 22 从近到远 1 2 3
-##BCM 对应 GPIO numbers , BOARD 对应 physical numbers。 
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setwarnings(False)
-# GPIO.setmode(2,GPIO.OUT)    #把引脚 2  设置为输出模式
-# GPIO.setup(15,GPIO.IN,pull_up_down=GPIO.PUD_UP)     #把引脚 3 设置为输入模式
-# GPIO.setup(18,GPIO.OUT)
 
-# GPIO.setup(17,GPIO.OUT)
-# GPIO.setup(27,GPIO.OUT)
-# GPIO.setup(22,GPIO.OUT)
 pos=[17,27,22]
 reader = zxing.BarCodeReader()
 log_counter = 0
 start_time = time.time()
 HOST_IP='10.186.81.33'
-IMG_PATH='/home/pi/Documents/gx/0.jpg'
+IMG_PATH='0.jpg'
 # set blue thresh 设置HSV中蓝色、天蓝色范围
 lower_red = np.array([0,43,46])
 upper_red = np.array([15,255,255])

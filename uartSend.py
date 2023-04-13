@@ -65,7 +65,8 @@ class uartSerial():
             # #波特率，标准值之一：50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,19200,38400,57600,115200
             # bps=115200
             #超时设置,None：永远等待操作，0为立即返回请求结果，其他值为等待超时时间(单位为秒）
-            timex=1
+            timex=5
+            # if not add this time, the pi will not contain the message doesn't be accepted by the arduino
             # 打开串口，并得到串口对象
             self.ser=serial.Serial(portx,bps,timeout=timex)
             if self.ser.is_open:
@@ -93,6 +94,10 @@ class uartSerial():
         indata=""
         indata= self.ser.readline()
         print(indata)
+        # if indata!=[]: 
+        #     indata=indata[0] 
+        # else:
+        #     indata=""
         if indata!="":
             self.currentReadinData= indata.decode()
             print('in waiting',self.ser.in_waiting)
@@ -148,7 +153,7 @@ class uartSerial():
 
     def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999):
         self.NthInstruction+=1
-        self.send(b'I%.2f,X%.2f,Y%.2f,W%.2f,T%.2f,O%.2f,P%.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,mode))
+        self.send(b'I%2.2f,X%2.2f,Y%2.2f,W%2.2f,T%5.2f,O%4.2f,P%2.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,mode))
 
 if __name__=='__main__':
 
@@ -175,7 +180,7 @@ if __name__=='__main__':
     # time.sleep(0.002)
     # ser.sendBatch(2,[0,24,1,32])
     # for i in range(15):
-    # time.sleep(5)
+    time.sleep(2)
     # print(ser.receive())
     print("----------------------------------")
        # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
@@ -187,10 +192,14 @@ if __name__=='__main__':
         # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
     time.sleep(0.1)
     ser.receive()
-    ser.sendInstruction(0,0.2,0,7000)
+    ser.sendInstruction(0,0.2,0,1000)
+    ser.sendInstruction(0,0.2,0,1000)
+    ser.sendInstruction(0,0.2,0,1000)
     time.sleep(0.1)
     ser.receive()
         # ser.formatReadin()
     time.sleep(4)
+    ser.receive()
+    time.sleep(6)
     ser.receive()
     ser.close()
