@@ -624,15 +624,41 @@ void MotionControl(double vx, double vy, double vz, double t)
   }
   wait(0.1);
 }
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_ST7735.h> // Hardware-specific library
+#include <SPI.h>
+
+
+// For the breakout, you can use any 2 or 3 pins
+// These pins will also work for the 1.8" TFT shield
+#define TFT_CS     43
+#define TFT_RST    39  // you can also connect this to the Arduino reset
+                      // in which case, set this #define pin to 0!
+#define TFT_DC     41
+// Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+
+// Option 2: use any pins but a little slower!
+#define TFT_SCLK 49   // set these to be whatever pins you like!
+#define TFT_MOSI 47   // set these to be whatever pins you like!
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+void displayTask(long int num=213321){
+  tft.drawChar(20+48,0,num/100000+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(20+64,0,(num/10000)%10+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(20+80,0,(num/1000)%10+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(20+48,64,(num%1000)/100+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(20+64,64,(num%100)/10+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(20+80,64,(num%10)+'0',ST7735_WHITE,ST7735_BLACK,2,4);
+}
+
 
 unsigned int public_instruction = 0;
-#define INFO_NUM 7
+#define INFO_NUM 8
 struct CommInfo
 {
   float last, current;
   char txt[8];
 } comminfo[INFO_NUM];
-struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6];
+struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6],&FetchOrder = comminfo[7];
 // String assistString;
 #define SERIAL_RX_BUFFER_SIZE 2048
 unsigned char rxBuf[256];                                                             // 串口接收缓冲
@@ -643,6 +669,15 @@ int serialRxFlag = 0; // 串口接收完标志
 // char rou1[10], theta1[10];
 // float rou, theta;
 // void(* resetFunc) (void) = 0;
+#define START_PIN 30
+void start(){
+  char press = digitalRead(START_PIN);
+  while(!press){
+    delay(100);
+    press = digitalRead(START_PIN);
+  }
+}
+
 void setup()
 {
   // resetFunc();
@@ -765,6 +800,16 @@ void setup()
 #endif
   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
   // StepperControl(4,1);
+  tft.initR(INITR_BLACKTAB); 
+  tft.fillScreen(ST7735_BLACK);
+  tft.drawChar(10+0,0,'1',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(10+16,0,'s',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(10+32,0,'t',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(10+0,64,'2',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(10+16,64,'s',ST7735_WHITE,ST7735_BLACK,2,4);
+  tft.drawChar(10+32,64,'t',ST7735_WHITE,ST7735_BLACK,2,4);
+
+  // displayTask();
 }
 // void serialEvent(){
 //   while (Serial.available() > 0)
@@ -862,7 +907,7 @@ void loop()
       // if (pHead2Instruction[0] == 'I' )
       { // 解析命令
         // Serial.println("wok");   //调试时可以取消注释
-        sscanf((const char *)pHead2Instruction, "I%[^','],X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],P[^'\n']\n", InsNum.txt, vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt, motion_type.txt);
+        sscanf((const char *)pHead2Instruction, "I%[^','],X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],N%[^','],P[^'\n']\n", InsNum.txt, vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt,FetchOrder.txt,motion_type.txt);
 
         // 1.%前面的字符为跳过的字符，如果要跳过多个字符，应全部放在%之前；
         // 2.^为读取的字符串，后面所跟字符为截至字符，就是到逗号为止且丢掉逗号；
@@ -883,13 +928,17 @@ void loop()
       if (public_instruction)
       {
         public_instruction = 0;
+        // Serial.print('F');
+        if (InsNum.current==1){
+          start();
+        }
 
         // vx vy vw t
         // Serial.write(rxBuf, 50);
         Serial.print('F');
         Serial.print(InsNum.current);
         Serial.print(serialRxFlag);
-
+        Serial.print(FetchOrder.current);
         Serial.print('!');
 
         // Serial.print(InsNum.txt);
@@ -897,9 +946,10 @@ void loop()
         // Serial.print(vx_delta.txt);
         // Serial.print(vy_delta.current);
         // Serial.print(vy_delta.txt);
-        // InsNum.txt
         Serial.print('\n');
-        // Serial.print("as");
+        if (FetchOrder.current!=-999){
+          displayTask(FetchOrder.current);
+        }
         if (vx_delta.current != -999 && vy_delta.current != -999 && vw_delta.current != -999 && t_delta.current != -999)
         {
           MotionControl(vx_delta.current, vy_delta.current, vw_delta.current, t_delta.current);
@@ -908,7 +958,6 @@ void loop()
         {
           StepperControl(abs(stepper_pos.current), (bool)(stepper_pos.current > 0));
         }
-
         for (int i = 0; i < INFO_NUM; i++)
         {
           if (comminfo[i].current != -999)

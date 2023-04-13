@@ -151,9 +151,11 @@ class uartSerial():
     def close(self):
         self.ser.close()#关闭串口
 
-    def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999):
+    def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999,order=-999):
         self.NthInstruction+=1
-        self.send(b'I%2.2f,X%2.2f,Y%2.2f,W%2.2f,T%5.2f,O%4.2f,P%2.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,mode))
+        self.send(b'I%2.2f,X%2.2f,Y%2.2f,W%2.2f,T%5.2f,O%4.2f,N%6.1f,P%2.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,order,mode))
+        while(self.receive().find('F')==-1):
+            pass
 
 if __name__=='__main__':
 
@@ -180,7 +182,7 @@ if __name__=='__main__':
     # time.sleep(0.002)
     # ser.sendBatch(2,[0,24,1,32])
     # for i in range(15):
-    for i in range(1):
+    for i in range(5):
         # time.sleep(1)
         print("wait for %2d s"%(i))
         ser.receive()
@@ -188,27 +190,12 @@ if __name__=='__main__':
     print("----------------------------------")
     # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
     ser.sendInstruction(height=10)
+
+    print("-------------start---------------------")
     # ser.sendInstruction(0.2,0.2,0,3000)
-    time.sleep(1)
-    ser.receive()
-    # ser.sendInstruction(height=+16)
-    # time.sleep(1)
-    # ser.receive()
-    # ser.sendInstruction(height=+16)
-    # time.sleep(1)
-    # ser.receive()
-    # ser.sendInstruction(height=+16)
-    # time.sleep(1)
-    # ser.receive()
-    # ser.sendInstruction(height=+16)
-    # time.sleep(1)
-    # ser.receive()
-
-
-
-    ser.sendInstruction(0.2,0.2,0,3000)
-    time.sleep(1)
-    ser.receive()
+    # ser.sendInstruction(order=123321)
+    ser.sendInstruction(0.2,0,0,3000)
+    #ser.sendInstruction(0,0.2,0,3000)
     # ser.sendInstruction(0,0.2,0,3000)
     #     # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
     #     # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
