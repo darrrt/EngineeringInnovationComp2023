@@ -1,4 +1,4 @@
-# from textwrap import indent
+# from textwrap import indentsudo
 import serial
 import struct
 import os 
@@ -65,7 +65,7 @@ class uartSerial():
             # #波特率，标准值之一：50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,19200,38400,57600,115200
             # bps=115200
             #超时设置,None：永远等待操作，0为立即返回请求结果，其他值为等待超时时间(单位为秒）
-            timex=5
+            timex=1
             # if not add this time, the pi will not contain the message doesn't be accepted by the arduino
             # 打开串口，并得到串口对象
             self.ser=serial.Serial(portx,bps,timeout=timex)
@@ -99,10 +99,10 @@ class uartSerial():
         # else:
         #     indata=""
         if indata!="":
-            self.currentReadinData= indata.decode()
+            self.currentReadinData= indata[:-1].decode()
             print('in waiting',self.ser.in_waiting)
             indata=self.ser.read(self.ser.in_waiting)  
-            self.currentReadinData+=indata.decode()
+            self.currentReadinData+=indata[:-1].decode()
             print('readin',self.currentReadinData)
             # print(self.currentReadinData)
             return self.currentReadinData
@@ -180,26 +180,48 @@ if __name__=='__main__':
     # time.sleep(0.002)
     # ser.sendBatch(2,[0,24,1,32])
     # for i in range(15):
-    time.sleep(2)
+    for i in range(1):
+        # time.sleep(1)
+        print("wait for %2d s"%(i))
+        ser.receive()
     # print(ser.receive())
     print("----------------------------------")
-       # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
+    # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
+    ser.sendInstruction(height=10)
+    # ser.sendInstruction(0.2,0.2,0,3000)
+    time.sleep(1)
+    ser.receive()
+    # ser.sendInstruction(height=+16)
+    # time.sleep(1)
+    # ser.receive()
+    # ser.sendInstruction(height=+16)
+    # time.sleep(1)
+    # ser.receive()
+    # ser.sendInstruction(height=+16)
+    # time.sleep(1)
+    # ser.receive()
+    # ser.sendInstruction(height=+16)
+    # time.sleep(1)
+    # ser.receive()
+
+
+
     ser.sendInstruction(0.2,0.2,0,3000)
-    time.sleep(0.1)
+    time.sleep(1)
     ser.receive()
-    ser.sendInstruction(0,0.2,0,3000)
-        # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
-        # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
-    time.sleep(0.1)
-    ser.receive()
-    ser.sendInstruction(0,0.2,0,1000)
-    ser.sendInstruction(0,0.2,0,1000)
-    ser.sendInstruction(0,0.2,0,1000)
-    time.sleep(0.1)
-    ser.receive()
-        # ser.formatReadin()
-    time.sleep(4)
-    ser.receive()
-    time.sleep(6)
-    ser.receive()
+    # ser.sendInstruction(0,0.2,0,3000)
+    #     # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
+    #     # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
+    # time.sleep(0.1)
+    # ser.receive()
+    # ser.sendInstruction(0,0.2,0,1000)
+    # ser.sendInstruction(0,0.2,0,1000)
+    # ser.sendInstruction(0,0.2,0,1000)
+    # time.sleep(0.1)
+    # ser.receive()
+    #     # ser.formatReadin()
+    # time.sleep(4)
+    # ser.receive()
+    # time.sleep(6)
+    # ser.receive()
     ser.close()

@@ -22,9 +22,9 @@ bool shaft = false;
 // #define Servo0 30
 // #define Servo1 31
 // #define Servo2 32
-#define EN_PIN 33   // Enable
-#define DIR_PIN 40  // Direction
-#define STEP_PIN 34 // Step
+#define EN_PIN 36   // Enable
+#define DIR_PIN 31  // Direction
+#define STEP_PIN 32 // Step
 // #define CS_PIN           42 // Chip select
 // #define SW_MOSI          66 // Software Master Out Slave In (MOSI)
 // #define SW_MISO          44 // Software Master In Slave Out (MISO)
@@ -61,20 +61,24 @@ TMC2209Stepper driver(&SERIAL_PORT, R_SENSE, DRIVER_ADDRESS);
 //      delay(10);
 //    }
 //  }
-void StepperControl()
+void StepperControl(unsigned int times, bool shaft = 1)
 {
-  for (uint16_t i = 1000; i > 0; i--)
-  {
-    digitalWrite(STEP_PIN, HIGH);
-    delayMicroseconds(200);
-    // Serial.println("HIGH");
-    digitalWrite(STEP_PIN, LOW);
-    delayMicroseconds(200);
-    // Serial.println("LOW");
-  }
-  shaft = !shaft;
-  driver.shaft(shaft);
+  // shaft = !shaft;
+  // driver.shaft(shaft);
   digitalWrite(DIR_PIN, shaft);
+  // Serial.print(shaft);
+  for (; times > 0; times--)
+  {
+    for (uint16_t i = 200; i > 0; i--)
+    {
+      digitalWrite(STEP_PIN, HIGH);
+      delayMicroseconds(500);
+      // Serial.println("HIGH");
+      digitalWrite(STEP_PIN, LOW);
+      delayMicroseconds(500);
+      // Serial.println("LOW");
+    }
+  }
 }
 
 #include <SunConfig.h>
@@ -630,17 +634,18 @@ struct CommInfo
 } comminfo[INFO_NUM];
 struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6];
 // String assistString;
-unsigned char rxBuf[128];      // 串口接收缓冲
-unsigned char *pChar = rxBuf,*pHead2Instruction=rxBuf,*pTail2Instruction=rxBuf; // 字符指针
+#define SERIAL_RX_BUFFER_SIZE 2048
+unsigned char rxBuf[256];                                                             // 串口接收缓冲
+unsigned char *pChar = rxBuf, *pHead2Instruction = rxBuf, *pTail2Instruction = rxBuf; // 字符指针
 
 // char kp1[10], ki1[10], kd1[10], sv1[10], mode[10], out[10], LR[10];
 int serialRxFlag = 0; // 串口接收完标志
 // char rou1[10], theta1[10];
 // float rou, theta;
-
+// void(* resetFunc) (void) = 0;
 void setup()
 {
-
+  // resetFunc();
   Serial.begin(115200);
   while (Serial.read() >= 0)
   {
@@ -675,7 +680,7 @@ void setup()
     ;
   while (Serial.available() > 0)
   {
-    char inByte = Serial.read(); 
+    char inByte = Serial.read();
     Serial.write(inByte);
     // Serial.write("wait\n");
   }
@@ -759,10 +764,37 @@ void setup()
   Serial.println("Sunnybot-Basic-Mecanum-Rectangle-Test:");
 #endif
   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
-
+  // StepperControl(4,1);
 }
+// void serialEvent(){
+//   while (Serial.available() > 0)
+//   {
+//     // Serial.print("j");
+//     char inByte = Serial.read(); // 串口读进来的始终是一个整数，即ASCII码值80（助手以ASCII码发送，如'P'）
+//     // Serial.write(inByte);
+//     if (('0' <= inByte and '9' >= inByte) or ('A' <= inByte or inByte <= 'Z') or inByte == ',' or inByte == '\n' or inByte == '!')
+//     {
+//       *pChar++ = inByte; // 保存一个字符
+//       // if (rxBuf[0] != 'I')
+//       // {
+//       //   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问
+//       //   pChar = &rxBuf[0];                 // 指针回指，准备下次接收题
+//       // }
+
+//       // if (inByte == '\n' or inByte == '!')
+//       if (inByte == '!')
+//       { // 检查是不是最后一个字符：回车换行符0x0D 0x0A
+//         serialRxFlag += 1;
+//         // Serial.write(inByte);
+//       }
+
+//     }
+//   }
+//   Serial.print("2\n");
+// }
 void loop()
 {
+  // Serial.print("1\n");
   // Serial.print("aaa\n");
   // while (!(Serial.available() > 0))
   // {
@@ -776,115 +808,124 @@ void loop()
     if (('0' <= inByte and '9' >= inByte) or ('A' <= inByte or inByte <= 'Z') or inByte == ',' or inByte == '\n' or inByte == '!')
     {
       *pChar++ = inByte; // 保存一个字符
-      // if (rxBuf[0] != 'I')
-      // {
-      //   memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问
-      //   pChar = &rxBuf[0];                 // 指针回指，准备下次接收题
-      // }
+      if (inByte == 'I')
+      {
+        // Serial.print('a');
+      }
 
       // if (inByte == '\n' or inByte == '!')
       if (inByte == '!')
       { // 检查是不是最后一个字符：回车换行符0x0D 0x0A
         serialRxFlag += 1;
-        // Serial.write(inByte);
+        // Serial.print('b');
+        // Serial.print('\n');
       }
-      
     }
   }
-  if (serialRxFlag>0){
-    pHead2Instruction=&rxBuf[0];
-  }
-  while (serialRxFlag > 0)
-  { // 处理接收的字符串
-    serialRxFlag -= 1;
-    // if (serialRxFlag == 0)
-    // {
-    //   pChar = &rxBuf[0]; // 指针回指，准备下次接收
-    // }
+  if (serialRxFlag > 0)
+  {
+    pHead2Instruction = &rxBuf[0];
+
+    while (serialRxFlag > 0)
+    { // 处理接收的字符串
+      serialRxFlag -= 1;
+      // if (serialRxFlag == 0)
+      // {
+      //   pChar = &rxBuf[0]; // 指针回指，准备下次接收
+      // }
 
 // Serial.print("串口发送的命令串:"); // 调试时可以取消注释
 #ifdef OUTPUT_LOG
-    Serial.write(rxBuf, 50);
-    Serial.write('!');
+      Serial.write(rxBuf, 50);
+      Serial.write('!');
 #endif
-    // Serial.write(rxBuf, 50);
-    // Serial.write('!');
-    // Serial.println();
-    // 串口发送例子N,P6.0,I2.5,D0.6,S45.5,M1,T50,R1    第一个字母区别是内回路参数还是外回路参数，注意要发送新行
-    // 串口发送例子W,P6.0,I2.5,D0.6,S45.5,M1,T50       第一个字母区别是内回路参数还是外回路参数，注意要发送新行
-    while(pHead2Instruction[0] != 'I' and pHead2Instruction<pChar){
-      pHead2Instruction++;
-    }
-    // TODO
-    // may be not needed currently
-    pTail2Instruction=pHead2Instruction;
-    while(pTail2Instruction[0] != '!' and pTail2Instruction<pChar){
-      pTail2Instruction++;
-    }
-    if (pHead2Instruction[0] == 'I' and pTail2Instruction[0]=='!')
-    // if (pHead2Instruction[0] == 'I' )
-    { // 解析命令
-      // Serial.println("wok");   //调试时可以取消注释
-      sscanf((const char*)pHead2Instruction, "I%[^','],X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],P[^'\n']\n", InsNum.txt, vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt, motion_type.txt);
-
-      // 1.%前面的字符为跳过的字符，如果要跳过多个字符，应全部放在%之前；
-      // 2.^为读取的字符串，后面所跟字符为截至字符，就是到逗号为止且丢掉逗号；
-      // 3.^须用[]括起，所以一定要核对[]符号的数量
-      for (int i = 0; i < INFO_NUM; i++)
-      {
-        // // comminfo[i].current = comminfo[i].txt.toFloat();
-        // assistString=comminfo[i].txt;
-        // comminfo[i].current=assistString.toFloat();
-        comminfo[i].current = atof(comminfo[i].txt);
-        // assistString
-      }
-      public_instruction = 1;
-      // memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
-      pHead2Instruction=pTail2Instruction+1;
-      // Serial.print("pub");
-    }
-    if (public_instruction)
-    {
-      public_instruction = 0;
-      // Serial.print("as");
-      if (vx_delta.current != -999 && vy_delta.current != -999 && vw_delta.current != -999 && t_delta.current != -999)
-      {
-        MotionControl(vx_delta.current, vy_delta.current, vw_delta.current, t_delta.current);
-      }
-      if (stepper_pos.current != -999)
-      {
-        StepperControl();
-      }
-
-      // vx vy vw t
       // Serial.write(rxBuf, 50);
-      Serial.print('F');
-      Serial.print(InsNum.current);
-      Serial.print(serialRxFlag);
-      
-      Serial.print('!');
-
-      // Serial.print(InsNum.txt);
-      // Serial.print(vx_delta.current);
-      // Serial.print(vx_delta.txt);
-      // Serial.print(vy_delta.current);
-      // Serial.print(vy_delta.txt);
-      // InsNum.txt
-      Serial.print('\n');
-      for (int i = 0; i < INFO_NUM; i++)
+      // Serial.write('!');
+      // Serial.println();
+      // 串口发送例子N,P6.0,I2.5,D0.6,S45.5,M1,T50,R1    第一个字母区别是内回路参数还是外回路参数，注意要发送新行
+      // 串口发送例子W,P6.0,I2.5,D0.6,S45.5,M1,T50       第一个字母区别是内回路参数还是外回路参数，注意要发送新行
+      while (pHead2Instruction[0] != 'I' and pHead2Instruction < pChar)
       {
-        if (comminfo[i].current != -999)
+        pHead2Instruction++;
+      }
+      // TODO
+      // may be not needed currently
+      pTail2Instruction = pHead2Instruction;
+      while (pTail2Instruction[0] != '!' and pTail2Instruction < pChar)
+      {
+        pTail2Instruction++;
+      }
+      // Serial.write(pHead2Instruction[0]);
+      // Serial.write(pTail2Instruction[0]);
+      // Serial.print('\n');
+      if (pHead2Instruction[0] == 'I' and pTail2Instruction[0] == '!')
+      // if (pHead2Instruction[0] == 'I' )
+      { // 解析命令
+        // Serial.println("wok");   //调试时可以取消注释
+        sscanf((const char *)pHead2Instruction, "I%[^','],X%[^','],Y%[^','],W%[^','],T%[^','],O%[^','],P[^'\n']\n", InsNum.txt, vx_delta.txt, vy_delta.txt, vw_delta.txt, t_delta.txt, stepper_pos.txt, motion_type.txt);
+
+        // 1.%前面的字符为跳过的字符，如果要跳过多个字符，应全部放在%之前；
+        // 2.^为读取的字符串，后面所跟字符为截至字符，就是到逗号为止且丢掉逗号；
+        // 3.^须用[]括起，所以一定要核对[]符号的数量
+        for (int i = 0; i < INFO_NUM; i++)
         {
-          comminfo[i].last = comminfo[i].current;
+          // // comminfo[i].current = comminfo[i].txt.toFloat();
+          // assistString=comminfo[i].txt;
+          // comminfo[i].current=assistString.toFloat();
+          comminfo[i].current = atof(comminfo[i].txt);
+          // assistString
+        }
+        public_instruction = 1;
+        // memset(rxBuf, ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
+        pHead2Instruction = pTail2Instruction + 1;
+        // Serial.print("pub");
+      }
+      if (public_instruction)
+      {
+        public_instruction = 0;
+
+        // vx vy vw t
+        // Serial.write(rxBuf, 50);
+        Serial.print('F');
+        Serial.print(InsNum.current);
+        Serial.print(serialRxFlag);
+
+        Serial.print('!');
+
+        // Serial.print(InsNum.txt);
+        // Serial.print(vx_delta.current);
+        // Serial.print(vx_delta.txt);
+        // Serial.print(vy_delta.current);
+        // Serial.print(vy_delta.txt);
+        // InsNum.txt
+        Serial.print('\n');
+        // Serial.print("as");
+        if (vx_delta.current != -999 && vy_delta.current != -999 && vw_delta.current != -999 && t_delta.current != -999)
+        {
+          MotionControl(vx_delta.current, vy_delta.current, vw_delta.current, t_delta.current);
+        }
+        if (stepper_pos.current != -999)
+        {
+          StepperControl(abs(stepper_pos.current), (bool)(stepper_pos.current > 0));
+        }
+
+        for (int i = 0; i < INFO_NUM; i++)
+        {
+          if (comminfo[i].current != -999)
+          {
+            comminfo[i].last = comminfo[i].current;
+          }
         }
       }
+      // pChar
     }
-    for(unsigned int i=0;i<pChar-pHead2Instruction;i++){
-      rxBuf[i]=pHead2Instruction[i];
+    for (unsigned int i = 0; i < pChar - pHead2Instruction; i++)
+    {
+      rxBuf[i] = pHead2Instruction[i];
     }
-    // pChar  
-    memset(rxBuf+(pChar-pHead2Instruction), ' ', sizeof(rxBuf)); // 数组清零，不清的话串口会有问题
-    pChar=rxBuf+(pChar-pHead2Instruction);
+    memset(rxBuf + (pChar - pHead2Instruction), ' ', sizeof(rxBuf - (pChar - pHead2Instruction))); // 数组清零，不清的话串口会有问题
+    pChar = rxBuf + (pChar - pHead2Instruction);
+    pHead2Instruction = pChar;
   }
 }
 
