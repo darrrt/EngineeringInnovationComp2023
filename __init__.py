@@ -1,3 +1,3 @@
 from . import QRcode
-from . import servo
+from . import Servo
 from . import circle

@@ -25,7 +25,7 @@ def classify_color():
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # get mask 利用inRange()函数和HSV模型中蓝色范围的上下界获取mask，mask中原视频中的蓝色部分会被弄成白色，其他部分黑色。
     mask_b = cv2.inRange(hsv, lower_blue, upper_blue)
-    # print(mask_b.shape)
+    print(mask_b.shape)
     mask_r = cv2.inRange(hsv, lower_red, upper_red)
     mask_g = cv2.inRange(hsv, lower_g,upper_g)
     res_r = cv2.bitwise_and(frame, frame, mask=mask_r)
@@ -47,12 +47,17 @@ def classify_color():
     mask_r=mask_r>0
     mask_g=mask_g>0
     mask_b=mask_b>0
-    r_sum=(np.sum(np.nonzero(mask_r))-1)
-    g_sum=(np.sum(np.nonzero(mask_g))-1)
-    b_sum=(np.sum(np.nonzero(mask_b))-1)
-    x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>100 else -1
-    x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>100 else -1
-    x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>100 else -1
+    # r_sum=(np.sum(np.nonzero(mask_r))-1)
+    # g_sum=(np.sum(np.nonzero(mask_g))-1)
+    # b_sum=(np.sum(np.nonzero(mask_b))-1)
+    # x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>1000 else -1
+    # x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>1000 else -1
+    # x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>1000 else -1
+
+    r_sum=np.array(np.nonzero(mask_r)).shape[1]
+    g_sum=np.array(np.nonzero(mask_g)).shape[1]
+    b_sum=np.array(np.nonzero(mask_b)).shape[1]
+
     # res = cv.bitwise_and(frame, frame, mask=mask1)
     # cv.imwrite('det000.jpg',res)
     # # if __name__ == '__main__':
@@ -62,7 +67,13 @@ def classify_color():
     #         break
     # cv.destroyAllWindows()
 
-    return (x_r,x_g,x_b)
+    # return (x_r,x_g,x_b)
+    if max(r_sum,g_sum,b_sum)==r_sum:
+        return 1
+    elif max(r_sum,g_sum,b_sum)==g_sum:
+        return 2
+    else:
+        return 3
 
 def QRScan(IMG_PATH):
 #读取摄像头视频

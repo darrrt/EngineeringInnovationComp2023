@@ -22,9 +22,9 @@ bool shaft = false;
 // #define Servo0 30
 // #define Servo1 31
 // #define Servo2 32
-#define EN_PIN 26   // Enable
-#define DIR_PIN 27  // Direction
-#define STEP_PIN 28 // Step
+#define EN_PIN 32   //   
+#define DIR_PIN 36  // Direction
+#define STEP_PIN 38 // Step
 // #define CS_PIN           42 // Chip select
 // #define SW_MOSI          66 // Software Master Out Slave In (MOSI)
 // #define SW_MISO          44 // Software Master In Slave Out (MISO)
@@ -65,20 +65,23 @@ void StepperControl(unsigned int times, bool shaft = 1)
 {
   // shaft = !shaft;
   // driver.shaft(shaft);
+  digitalWrite(EN_PIN, LOW); // Enable driver in hardware
   digitalWrite(DIR_PIN, shaft);
+  
   // Serial.print(shaft);
   for (; times > 0; times--)
   {
     for (uint16_t i = 200; i > 0; i--)
     {
       digitalWrite(STEP_PIN, HIGH);
-      delayMicroseconds(500);
+      delayMicroseconds(200);
       // Serial.println("HIGH");
       digitalWrite(STEP_PIN, LOW);
-      delayMicroseconds(500);
+      delayMicroseconds(200);
       // Serial.println("LOW");
     }
   }
+  digitalWrite(EN_PIN, HIGH); // Enable driver in hardware
 }
 
 #include <SunConfig.h>
@@ -96,7 +99,7 @@ void StepperControl(unsigned int times, bool shaft = 1)
 #include "SunConfig.h"
 
 // 串口总线舵机配置参数
-#define BAUDRATE 115200 // 波特率
+// #define BAUDRATE 115200 // 波特率
 
 // 调试串口的配置
 #if defined(ARDUINO_AVR_UNO)
@@ -551,6 +554,7 @@ void test()
 }
 void MotionControl(double vx, double vy, double vz, double t)
 {
+  float yaw;
   previousMillis = millis();
   while (1)
   {
@@ -565,7 +569,10 @@ void MotionControl(double vx, double vy, double vz, double t)
 
       mpu.dmpGetQuaternion(&q, fifoBuffer);
       mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      
+      yaw=mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      // Serial.print("yaw:");
+      // Serial.print(yaw);
       angular_vel_z = ypr[0] * 5;
     }
     rpm = kinematics.getRPM(linear_vel_x, linear_vel_y, angular_vel_z);
@@ -598,15 +605,15 @@ void MotionControl(double vx, double vy, double vz, double t)
 
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
-#define TFT_CS     22
-#define TFT_RST    24  // you can also connect this to the Arduino reset
+#define TFT_CS     41
+#define TFT_RST    37   // you can also connect this to the Arduino reset
                       // in which case, set this #define pin to 0!
-#define TFT_DC     23
+#define TFT_DC     39
 // Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 // Option 2: use any pins but a little slower!
-#define TFT_SCLK 34   // set these to be whatever pins you like!
-#define TFT_MOSI 35   // set these to be whatever pins you like!
+#define TFT_SCLK 49   // set these to be whatever pins you like!
+#define TFT_MOSI 43   // set these to be whatever pins you like!
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 void displayTask(long int num=213321){
   tft.drawChar(20+48,0,num/100000+'0',ST7735_WHITE,ST7735_BLACK,2,4);
@@ -627,8 +634,8 @@ struct CommInfo
 } comminfo[INFO_NUM];
 struct CommInfo &vx_delta = comminfo[0], &vy_delta = comminfo[1], &vw_delta = comminfo[2], &t_delta = comminfo[3], &stepper_pos = comminfo[4], &motion_type = comminfo[5], &InsNum = comminfo[6],&FetchOrder = comminfo[7];
 // String assistString;
-#define SERIAL_RX_BUFFER_SIZE 2048
-unsigned char rxBuf[256];                                                             // 串口接收缓冲
+#define SERIAL_RX_BUFFER_SIZE 4096
+unsigned char rxBuf[512];                  // 串口接收缓冲
 unsigned char *pChar = rxBuf, *pHead2Instruction = rxBuf, *pTail2Instruction = rxBuf; // 字符指针
 
 // char kp1[10], ki1[10], kd1[10], sv1[10], mode[10], out[10], LR[10];
@@ -636,7 +643,7 @@ int serialRxFlag = 0; // 串口接收完标志
 // char rou1[10], theta1[10];
 // float rou, theta;
 // void(* resetFunc) (void) = 0;
-#define START_PIN 38
+#define START_PIN 30
 void start(){
   char press = digitalRead(START_PIN);
   while(!press){
@@ -697,16 +704,16 @@ void setup()
   //  Serial.begin(115200);
   SERIAL_PORT.begin(115200); // HW UART drivers
                              // driver.beginSerial(115200);     // SW UART drivers
-  driver.begin();            //  SPI: Init CS pins and possible SW SPI pins
-                             // UART: Init SW UART (if selected) with default 115200 baudrate
-  driver.toff(5);            // Enables driver in software
-  driver.rms_current(600);   // Set motor RMS current
-  driver.microsteps(16);     // Set microsteps to 1/16th
+  // driver.begin();            //  SPI: Init CS pins and possible SW SPI pins
+  //                            // UART: Init SW UART (if selected) with default 115200 baudrate
+  // driver.toff(5);            // Enables driver in software
+  // driver.rms_current(600);   // Set motor RMS current
+  // driver.microsteps(16);     // Set microsteps to 1/16th
 
-  // driver.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
-  driver.en_spreadCycle(false); // Toggle spreadCycle on TMC2208/2209/2224
-  driver.pwm_autoscale(true);   // Needed for stealthChop
-  digitalWrite(EN_PIN, LOW);
+  // // driver.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
+  // driver.en_spreadCycle(false); // Toggle spreadCycle on TMC2208/2209/2224
+  // driver.pwm_autoscale(true);   // Needed for stealthChop
+  // digitalWrite(EN_PIN, LOW);
   mpu.initialize();
 #ifdef OUTPUT_LOG
   Serial.println(F("InitializingI2Cdevices..."));
@@ -824,7 +831,7 @@ void loop()
       {
         // Serial.print('a');
       }
-
+      Serial.write(inByte);
       // if (inByte == '\n' or inByte == '!')
       if (inByte == '!')
       { // 检查是不是最后一个字符：回车换行符0x0D 0x0A
@@ -906,6 +913,7 @@ void loop()
         Serial.print(InsNum.current);
         Serial.print(serialRxFlag);
         Serial.print(FetchOrder.current);
+        Serial.print(stepper_pos.current);
         Serial.print('!');
 
         // Serial.print(InsNum.txt);
@@ -939,7 +947,7 @@ void loop()
     {
       rxBuf[i] = pHead2Instruction[i];
     }
-    memset(rxBuf + (pChar - pHead2Instruction), ' ', sizeof(rxBuf - (pChar - pHead2Instruction))); // 数组清零，不清的话串口会有问题
+    memset(rxBuf + (pChar - pHead2Instruction), ' ', sizeof(rxBuf)-(pChar - pHead2Instruction)); // 数组清零，不清的话串口会有问题
     pChar = rxBuf + (pChar - pHead2Instruction);
     pHead2Instruction = pChar;
   }

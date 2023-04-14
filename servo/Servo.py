@@ -2,14 +2,15 @@
 # import cv2
 import Adafruit_PCA9685
 import time
-
+import cv2
+from pyzbar.pyzbar import decode
 # import adapip
 # 0：130正后
 # 1： 10上 300下
 SERVO0_0m=262
 SERVO0_0l=235
 SERVO0_0r=290
-SERVO0_1=75
+SERVO0_1=70
 SERVO0_2=20
 SERVO0_3=118
 SERVO1_0=5
@@ -18,8 +19,9 @@ SERVO1_2=150
 SERVO2_0=260
 SERVO2_1=90
 SERVO2_2=180
-SERVO3_0=150
-SERVO3_1=185
+SERVO2_3=0
+SERVO3_0=195
+SERVO3_1=220
 SERVO3_2=120
 SERVO0=4
 SERVO1=1
@@ -38,17 +40,17 @@ SET_1[2]=SERVO0_3
 
 def QRScan(IMG_PATH):
 #读取摄像头视频
-    img = cv2.imread(IMG_PATH)
-    #循环设备图片中的二维码
-    for barcode in decode(img):
-        #打印出二维码信息
-        # print(barcode.data)
-        # print(barcode.rect)
-        myData=[]
-        myData = barcode.data.decode('utf-8')
-        print(myData)
-    # cv2.imshow('result', img)
-    return myData
+	img = cv2.imread(IMG_PATH)
+	#循环设备图片中的二维码
+	myData=[]
+	for barcode in decode(img):
+		#打印出二维码信息
+		# print(barcode.data)
+		# print(barcode.rect)
+		myData = barcode.data.decode('utf-8')
+		print(myData)
+	# cv2.imshow('result', img)
+	return myData
 
 def catch_picture(IMG_PATH):
     #调用笔记本内置摄像头，所以参数为0，如果有其他的摄像头可以调整参数为1，2
@@ -121,14 +123,14 @@ def setCatchAngel1(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_0,SERVO0)
 	ServoControl(SERVO1_0,SERVO1)
 	ServoControl(SERVO2_0,SERVO2)
-	ServoControl(SERVO3_0,SERVO3)
+	# ServoControl(SERVO3_0,SERVO3)
+	for i in range(SERVO2_0,SERVO2_1,-2):
+		ServoControl(i,SERVO2)
+		time.sleep(0.02)
 	for i in range(SERVO0_0,SERVO0_4,-1):
 		ServoControl(i,SERVO0)
 		time.sleep(0.02)
 	# time.sleep(3)
-	for i in range(SERVO2_0,SERVO2_1,-2):
-		ServoControl(i,SERVO2)
-		time.sleep(0.02)
 	for i in range(SERVO1_0,SERVO1_1,2):
 		ServoControl(i,SERVO1)
 		time.sleep(0.02)
@@ -136,21 +138,21 @@ def setPlaceAngel1(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_4,SERVO0)
 	ServoControl(SERVO1_1,SERVO1)
 	ServoControl(SERVO2_1,SERVO2)
-	ServoControl(SERVO3_1,SERVO3)
-	for i in range(SERVO2_1,SERVO2_0,2):
-		ServoControl(i,SERVO2)
-		time.sleep(0.02)
+	# ServoControl(SERVO3_1,SERVO3)
 	for i in range(SERVO1_1,SERVO1_0,-2):
 		ServoControl(i,SERVO1)
 		time.sleep(0.02)
 	for i in range(SERVO0_4,SERVO0_0,1):
 		ServoControl(i,SERVO0)
 		time.sleep(0.02)
+	for i in range(SERVO2_1,SERVO2_0,2):
+		ServoControl(i,SERVO2)
+		time.sleep(0.02)
 def setCatchAngel2(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_0,SERVO0)
 	ServoControl(SERVO1_0,SERVO1)
 	ServoControl(SERVO2_0,SERVO2)
-	ServoControl(SERVO3_0,SERVO3)
+	# ServoControl(SERVO3_0,SERVO3)
 	for i in range(SERVO2_0,SERVO2_2,-2):
 		ServoControl(i,SERVO2)
 		time.sleep(0.02)
@@ -165,15 +167,15 @@ def setPlaceAngel2(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_4,SERVO0)
 	ServoControl(SERVO1_2,SERVO1)
 	ServoControl(SERVO2_2,SERVO2)
-	ServoControl(SERVO3_1,SERVO3)
+	# ServoControl(SERVO3_1,SERVO3)
 	for i in range(SERVO1_2,SERVO1_0,-2):
 		ServoControl(i,SERVO1)
 		time.sleep(0.02)
-	for i in range(SERVO2_2,SERVO2_0,2):
-		ServoControl(i,SERVO2)
-		time.sleep(0.02)
 	for i in range(SERVO0_4,SERVO0_0,1):
 		ServoControl(i,SERVO0)
+		time.sleep(0.02)
+	for i in range(SERVO2_2,SERVO2_0,2):
+		ServoControl(i,SERVO2)
 		time.sleep(0.02)
 def setRecognize(SERVO0_0,SERVO0_4):
 	ServoControl(SERVO0_0,SERVO0)
@@ -224,9 +226,11 @@ def QRposRE(SERVO0_0,SERVO0_4):
 		ServoControl(i,SERVO2)
 		time.sleep(0.02)
 
+
+pwm = Adafruit_PCA9685.PCA9685()
+pwm.set_pwm_freq(330) #频率
 if __name__ == '__main__':
-	pwm = Adafruit_PCA9685.PCA9685()
-	pwm.set_pwm_freq(330) #频率
+	
 	# for i in range(0,300,1):
 	# 	ServoControl(i,15)
 	# 	time.sleep(0.1)
@@ -234,7 +238,7 @@ if __name__ == '__main__':
 	# ServoControl(5,SERVO1)
 	# ServoControl(30,SERVO0)
 
-	#识别并从转盘上抓物体
+	# #识别并从转盘上抓物体
 	# QRposTO(SERVO0_0l,0)
 	# # catch_picture("0.jpg")
 	# # squ=QRScan("0.jpg")
@@ -256,58 +260,68 @@ if __name__ == '__main__':
 	# 		setRecognize(SERVO0_0r,SERVO0_1)
 	# 	i+=1	
 	
-	#在1区放物体
-	# setPlaceAngel2(SERVO0_0l,SERVO0_1)
+	# # 在1区放物体
+	# # setRecognize(SERVO0_0r,SERVO0_1)
+	# for i in range(SERVO2_2,SERVO2_1,-2):
+	# 	ServoControl(i,SERVO2)
+	# 	time.sleep(0.02)
+	# for i in range(SERVO0_1,SERVO0_0l,1):
+	# 	ServoControl(i,SERVO0)
+	# 	time.sleep(0.02)
+	# for i in range(SERVO2_1,SERVO2_0,2):
+	# 	ServoControl(i,SERVO2)
+	# 	time.sleep(0.02)
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel2(SERVO0_0l,SERVO0_2)
 	# PlaceThing(SERVO3_1,SERVO3_0)
-
 	# setPlaceAngel2(SERVO0_0m,SERVO0_2)
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel1(SERVO0_0m,SERVO0_1)
 	# PlaceThing(SERVO3_1,SERVO3_0)
-
 	# setPlaceAngel1(SERVO0_0r,SERVO0_1)
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel2(SERVO0_0r,SERVO0_3)
 	# PlaceThing(SERVO3_1,SERVO3_0)
 
-	#在一区抓物体
-	# set_2=[0,0,0]
-	# for i in range(4,7):
-	# 	SET_2[i-4]=SET_1[squ[i]]
+	# # 在一区抓物体
+	# # set_2=[0,0,0]
+	# # for i in range(4,7):
+	# # 	SET_2[i-4]=SET_1[squ[i]]
 
+	# SET_2=SET_1
+	# setPlaceAngel2(SERVO0_0l,SERVO0_3)
 	# setCatchAngel2(SERVO0_0l,SET_2[0])
 	# CatchThing(SERVO3_0,SERVO3_1)
-	# setPlaceAngel2(SERVO0_0r,SET_2[0])
+	# setPlaceAngel2(SERVO0_0l,SET_2[0])
 	# PlaceThing(SERVO3_1,SERVO3_0)
 	# time.sleep(1)
-	# setCatchAngel1(SERVO0_0r,SET_2[1])
+	# setCatchAngel1(SERVO0_0l,SET_2[1])
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setPlaceAngel1(SERVO0_0m,SET_2[1])
 	# PlaceThing(SERVO3_1,SERVO3_0)
 	# time.sleep(1)
 	# setCatchAngel2(SERVO0_0m,SET_2[2])
 	# CatchThing(SERVO3_0,SERVO3_1)
-	# setPlaceAngel2(SERVO0_0l,SET_2[2])
+	# setPlaceAngel2(SERVO0_0r,SET_2[2])
 	# PlaceThing(SERVO3_1,SERVO3_0)
 	# time.sleep(1)
 
-	#在二区放物体
-	# setPlaceAngel2(SERVO0_0l,SERVO0_1)
+	# #在二区放物体
+	# setRecognize(SERVO0_0r,SERVO0_0l)
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel2(SERVO0_0l,SERVO0_2)
 	# PlaceThing(SERVO3_1,SERVO3_0)
-
 	# setPlaceAngel2(SERVO0_0m,SERVO0_2)
+
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel1(SERVO0_0m,SERVO0_1)
 	# PlaceThing(SERVO3_1,SERVO3_0)
-
 	# setPlaceAngel1(SERVO0_0r,SERVO0_1)
+
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# setCatchAngel2(SERVO0_0r,SERVO0_3)
 	# PlaceThing(SERVO3_1,SERVO3_0)
+	# setPlaceAngel2(SERVO0_0l,SERVO0_3)
 
 
 	#调试
@@ -316,10 +330,11 @@ if __name__ == '__main__':
 	# ServoControl(SERVO2_1,SERVO2)
 	# ServoControl(SERVO3_0,SERVO3)
 
-	ServoControl(SERVO0_0l,SERVO0)
+	ServoControl(SERVO0_1,SERVO0)
 	ServoControl(SERVO1_0,SERVO1)
 	ServoControl(SERVO2_0,SERVO2)
 	ServoControl(SERVO3_0,SERVO3)
+	# CatchThing(SERVO3_0,SERVO3_1)
 	# ServoControl(0,15)
 
 	

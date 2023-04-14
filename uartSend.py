@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 # from textwrap import indentsudo
 import serial
 import struct
@@ -6,6 +7,41 @@ import time
 # import serial_asyncio
 # import asyncio
 import binascii
+from servo.Servo import *
+# from servo.Adafruit_PCA9685 import *
+
+SERVO0_0m=262
+SERVO0_0l=235
+SERVO0_0r=290
+SERVO0_1=70
+SERVO0_2=20
+SERVO0_3=118
+SERVO1_0=5
+SERVO1_1=300
+SERVO1_2=150
+SERVO2_0=260
+SERVO2_1=90
+SERVO2_2=180
+SERVO2_3=0
+SERVO3_0=195
+SERVO3_1=220
+SERVO3_2=120
+SERVO0=4
+SERVO1=1
+SERVO2=2
+SERVO3=3
+
+SERVO0_SET=[0,0,0]
+SERVO0_SET[0]=SERVO0_0l
+SERVO0_SET[1]=SERVO0_0m
+SERVO0_SET[2]=SERVO0_0r
+
+SET_1=[0,0,0]
+SET_1[0]=SERVO0_2
+SET_1[1]=SERVO0_1
+SET_1[2]=SERVO0_3
+
+
 # class OutputProtocol(asyncio.Protocol):
 #     def __init__(self) -> None:
 #         super().__init__()
@@ -57,7 +93,7 @@ import binascii
 #         print('resume writing')
 
 class uartSerial():
-    def __init__(self,portx="/dev/ttyACM0",bps=115200) -> None:
+    def __init__(self,portx="/dev/ttyACM1",bps=115200) -> None:
         self.buf = bytes()
         try:
             #端口，GNU / Linux上的/ dev / ttyUSB0 等 或 Windows上的 COM3 等
@@ -153,63 +189,38 @@ class uartSerial():
 
     def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999,order=-999):
         self.NthInstruction+=1
-        self.send(b'I%2.2f,X%2.2f,Y%2.2f,W%2.2f,T%5.2f,O%4.2f,N%6.1f,P%2.2f!'%(self.NthInstruction,vx,vy,vw,ms,height,order,mode))
+        self.send(b'I%2.1f,X%2.1f,Y%2.1f,W%2.1f,T%2.1f,O%2.1f,N%2.1f,P%2.1f!'%(self.NthInstruction,vx,vy,vw,ms,height,order,mode))
         while(self.receive().find('F')==-1):
             pass
+        self.receive()
 
 if __name__=='__main__':
+    ServoControl(SERVO0_0l,SERVO0)
+    ServoControl(SERVO1_0,SERVO1)
+    ServoControl(SERVO2_0,SERVO2)
+    ServoControl(SERVO3_0,SERVO3)
+    ser=uartSerial(portx=os.popen("ls /dev/ttyACM*").readlines()[0][:-1])
 
-    # loop = asyncio.get_event_loop()
-    # coro = serial_asyncio.create_serial_connection(loop, OutputProtocol, '/dev/ttyACM0', baudrate=115200)
-    # transport, protocol = loop.run_until_complete(coro)
-
-
-    # time.sleep(3)
-    # protocol.data_write(b'I,R123.32,T123\n')
-    # protocol.data_write(b'I,R123.32,T123\n')
-
-    # # loop.run_forever()
-    # # protocol.read()
-    
-    # time.sleep(1)
-    # loop.close()
-    # print(os.popen("ls /dev/ttyACM0").readlines()[0][:-1],'\n')
-    ser=uartSerial(portx=os.popen("ls /dev/ttyACM0").readlines()[0][:-1])
-    # ser.send(1,18)
-    # ser.send(0,223)
-    # ser.sendBatch(2,[0,23,1,33])
-    # ser.sendBatch(2,[0,24,1,34])
-    # time.sleep(0.002)
-    # ser.sendBatch(2,[0,24,1,32])
-    # for i in range(15):
     for i in range(5):
         # time.sleep(1)
         print("wait for %2d s"%(i))
         ser.receive()
     # print(ser.receive())
     print("----------------------------------")
-    # ser.send(b'I%.2f,X87.3,Y76.7,W56,T6,O5,P3!'%(i))
-    ser.sendInstruction(height=-10)
+    ser.sendInstruction(height=10)
 
     print("-------------start---------------------")
     # ser.sendInstruction(0.2,0.2,0,3000)
-    # ser.sendInstruction(order=123321)
-    ser.sendInstruction(-0.2,0,0,5000)
-    ser.sendInstruction(0,-0.2,0,5000)
-    ser.sendInstruction(0,0.2,0,5000)
-    ser.sendInstruction(0.2,0,0,5000)
-    #     # "I,X%[^','],Y%[^','],W%[^','],T%[^','],S%[^','],E%[^','],R%[^','],V%[^','],O%[^','],P[^'\n']\n"
-    #     # vx_delta,vy_delta,vw_delta,t_delta,servo0_pos,servo1_pos,servo2_pos,servo3_pos,stepper_pos,motion_type
-    # time.sleep(0.1)
-    # ser.receive()
-    # ser.sendInstruction(0,0.2,0,1000)
-    # ser.sendInstruction(0,0.2,0,1000)
-    # ser.sendInstruction(0,0.2,0,1000)
-    # time.sleep(0.1)
-    # ser.receive()
-    #     # ser.formatReadin()
-    # time.sleep(4)
-    # ser.receive()
-    # time.sleep(6)
-    # ser.receive()
+    
+    # ser.sendInstruction(height=-10)
+    #ser.sendInstruction(order=123321)
+    # ser.sendInstruction(0,0,3.14,5000)
+    # ser.sendInstruction(0,0.2,0,1800)
+    # ser.sendInstruction(0.2,0,0,1800)
+    ser.sendInstruction(height=10)
+    # QRposTO(SERVO0_0l,0)
+    # catch_picture("0.jpg")
+    # squ=QRScan("0.jpg")
+    # print(squ)
+
     ser.close()
