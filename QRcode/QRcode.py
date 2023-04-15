@@ -16,24 +16,24 @@ IMG_PATH_COLOR="1.jpg"
 IMG_PATH_QR="0.jpg"
 
 def classify_color():
-    frame=cv.imread(IMG_PATH_COLOR)
+    frame=cv2.imread(IMG_PATH_COLOR)
     # frame=frame[UPPER_BOUND:LOWER_BOUND][:][:]
     # frame=cv2.resize(frame,(480,100))
     # fram=cv2.contrast
     # cv.imshow('Capture', frame)
     # change to hsv model
-    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # get mask 利用inRange()函数和HSV模型中蓝色范围的上下界获取mask，mask中原视频中的蓝色部分会被弄成白色，其他部分黑色。
-    mask_b = cv.inRange(hsv, lower_blue, upper_blue)
+    mask_b = cv2.inRange(hsv, lower_blue, upper_blue)
     print(mask_b.shape)
-    mask_r = cv.inRange(hsv, lower_red, upper_red)
-    mask_g = cv.inRange(hsv, lower_g,upper_g)
-    res_r = cv.bitwise_and(frame, frame, mask=mask_r)
-    res_g = cv.bitwise_and(frame, frame, mask=mask_g)
-    res_b = cv.bitwise_and(frame, frame, mask=mask_b)
-    cv.imwrite('r.jpg',res_r)
-    cv.imwrite('g.jpg',res_g)
-    cv.imwrite('b.jpg',res_b)
+    mask_r = cv2.inRange(hsv, lower_red, upper_red)
+    mask_g = cv2.inRange(hsv, lower_g,upper_g)
+    res_r = cv2.bitwise_and(frame, frame, mask=mask_r)
+    res_g = cv2.bitwise_and(frame, frame, mask=mask_g)
+    res_b = cv2.bitwise_and(frame, frame, mask=mask_b)
+    cv2.imwrite('r.jpg',res_r)
+    cv2.imwrite('g.jpg',res_g)
+    cv2.imwrite('b.jpg',res_b)
     # kernel=np.ones((5,5),np.uint8)
     # mask_b=cv.erode(mask_b,kernel,iterations=1)
     # mask_r=cv.erode(mask_r,kernel,iterations=1)
@@ -47,12 +47,17 @@ def classify_color():
     mask_r=mask_r>0
     mask_g=mask_g>0
     mask_b=mask_b>0
-    r_sum=(np.sum(np.nonzero(mask_r))-1)
-    g_sum=(np.sum(np.nonzero(mask_g))-1)
-    b_sum=(np.sum(np.nonzero(mask_b))-1)
-    x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>200 else -1
-    x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>200 else -1
-    x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>200 else -1
+    # r_sum=(np.sum(np.nonzero(mask_r))-1)
+    # g_sum=(np.sum(np.nonzero(mask_g))-1)
+    # b_sum=(np.sum(np.nonzero(mask_b))-1)
+    # x_r=(np.multiply(X_axis,mask_r[:]).sum()/r_sum)if r_sum>1000 else -1
+    # x_g=(np.multiply(X_axis,mask_g[:]).sum()/g_sum)if g_sum>1000 else -1
+    # x_b=(np.multiply(X_axis,mask_b[:]).sum()/b_sum)if b_sum>1000 else -1
+
+    r_sum=np.array(np.nonzero(mask_r)).shape[1]
+    g_sum=np.array(np.nonzero(mask_g)).shape[1]
+    b_sum=np.array(np.nonzero(mask_b)).shape[1]
+
     # res = cv.bitwise_and(frame, frame, mask=mask1)
     # cv.imwrite('det000.jpg',res)
     # # if __name__ == '__main__':
@@ -62,20 +67,28 @@ def classify_color():
     #         break
     # cv.destroyAllWindows()
 
-    return (x_r,x_g,x_b)
+    # return (x_r,x_g,x_b)
+    if max(r_sum,g_sum,b_sum)==r_sum:
+        return 1
+    elif max(r_sum,g_sum,b_sum)==g_sum:
+        return 2
+    else:
+        return 3
 
-def QRScan():
+def QRScan(IMG_PATH):
 #读取摄像头视频
-    img = cv2.imread(IMG_PATH_QR)
+    img = cv2.imread(IMG_PATH)
     #循环设备图片中的二维码
+    myData="123+231"
     for barcode in decode(img):
         #打印出二维码信息
         # print(barcode.data)
         # print(barcode.rect)
+        
         myData = barcode.data.decode('utf-8')
         print(myData)
     # cv2.imshow('result', img)
-    # return myData
+    return myData
 
 def catch_picture(IMG_PATH):
     #调用笔记本内置摄像头，所以参数为0，如果有其他的摄像头可以调整参数为1，2
@@ -91,9 +104,12 @@ def catch_picture(IMG_PATH):
         # k=cv2.waitKey(1)
         cv2.imwrite(IMG_PATH,img)
         break
-    return 
+    return
 
-catch_picture(IMG_PATH_QR)
-QRScan()
+if __name__ == '__main__':
+    catch_picture(IMG_PATH_QR)
+    QRScan(IMG_PATH_QR)
+    # res=classify_color()
+    # print(res)
 # mydata=QRScan()
 # print(mydata)

@@ -83,7 +83,7 @@ def QRScan(IMG_PATH):
         #打印出二维码信息
         # print(barcode.data)
         # print(barcode.rect)
-        myData=[]
+        myData="123+231"
         myData = barcode.data.decode('utf-8')
         print(myData)
     # cv2.imshow('result', img)

@@ -8,6 +8,7 @@ import time
 # import asyncio
 import binascii
 from servo.Servo import *
+from QRcode.QRcode import *
 # from servo.Adafruit_PCA9685 import *
 
 SERVO0_0m=262
@@ -17,7 +18,7 @@ SERVO0_1=70
 SERVO0_2=20
 SERVO0_3=118
 SERVO1_0=5
-SERVO1_1=300
+SERVO1_1=300 
 SERVO1_2=150
 SERVO2_0=260
 SERVO2_1=90
@@ -116,6 +117,7 @@ class uartSerial():
         self.currentReadinData=""
         self.serialIn=""
         self.NthInstruction=0
+        self.finishInstruction=0
         pass
     def send(self,value):
         try:
@@ -188,10 +190,13 @@ class uartSerial():
         self.ser.close()#关闭串口
 
     def sendInstruction(self,vx=-999,vy=-999,vw=-999,ms=-999,height=-999,mode=-999,order=-999):
+        self.finishInstruction=0
         self.NthInstruction+=1
         self.send(b'I%2.1f,X%2.1f,Y%2.1f,W%2.1f,T%2.1f,O%2.1f,N%2.1f,P%2.1f!'%(self.NthInstruction,vx,vy,vw,ms,height,order,mode))
-        while(self.receive().find('F')==-1):
+        while(self.receive().find('K')==-1):
             pass
+        # if 
+        # self.finishInstruction=1
         self.receive()
 
 if __name__=='__main__':
@@ -215,12 +220,48 @@ if __name__=='__main__':
     # ser.sendInstruction(height=-10)
     #ser.sendInstruction(order=123321)
     # ser.sendInstruction(0,0,3.14,5000)
-    # ser.sendInstruction(0,0.2,0,1800)
-    # ser.sendInstruction(0.2,0,0,1800)
-    ser.sendInstruction(height=10)
-    # QRposTO(SERVO0_0l,0)
-    # catch_picture("0.jpg")
-    # squ=QRScan("0.jpg")
-    # print(squ)
+    ser.sendInstruction(0,0.2,0,3000)
+    ser.sendInstruction(0.2,0,0,1800)
+    QRposTO(SERVO0_0l,0)
+    ser.sendInstruction(height=-75)#75
 
+    # ServoControl(SERVO0_0l,SERVO0)
+    # ServoControl(SERVO1_0,SERVO1)
+    # ServoControl(SERVO2_0,SERVO2)
+    # ServoControl(SERVO3_0,SERVO3)
+
+    catch_picture("0.jpg")
+    squ=QRScan("0.jpg")
+    print(squ)
+    squ=squ[:3]+squ[4:]
+    ser.sendInstruction(order=int(squ))
+    QRposRE(SERVO0_2,0)
+    for i in range(SERVO0_2,SERVO0_0m,1):
+        ServoControl(i,SERVO0)
+        time.sleep(0.02)
+    ser.sendInstruction(height=75)
+    ser.sendInstruction(0.2,0,0,7500)
+    ser.sendInstruction(0,0.2,0,2000)
+    ser.sendInstruction(0,-0.2,0,5000)
+    for i in range(SERVO0_0m,SERVO0_2,-1):
+        ServoControl(i,SERVO0)
+        time.sleep(0.02)
+    current_color=0
+    i=0
+    while i<3:
+        catch_picture("1.jpg")
+        current_color=classify_color()
+        print(current_color)
+        if current_color!=int(squ[i]):
+            pass
+        else:
+            setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
+            setCatchAngel0(SERVO0_SET[i],SERVO0_2)
+            i+=1
+		# setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
+		# if i!=2:
+		# 	setCatchAngel0(SERVO0_SET[i],SERVO0_2)
+		# else:
+		# 	setRecognize(SERVO0_0r,SERVO0_1)
+		# i+=1
     ser.close()

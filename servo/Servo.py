@@ -238,90 +238,90 @@ if __name__ == '__main__':
 	# ServoControl(5,SERVO1)
 	# ServoControl(30,SERVO0)
 
-	# #识别并从转盘上抓物体
-	# QRposTO(SERVO0_0l,0)
-	# # catch_picture("0.jpg")
-	# # squ=QRScan("0.jpg")
-	# # print(squ)
-	# QRposRE(SERVO0_2,0)
-	# current_color=0
-	# i=0
-	# while i<3:
-	# 	# if current_color!=squ[i]:
-	# 	# 	pass
-	# 	# else:
-	# 	# 	setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
-	# 	#   setCatchAngel0(SERVO0_SET[i],SERVO0_2)
-	# 	# 	i+=1
-	# 	setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
-	# 	if i!=2:
-	# 		setCatchAngel0(SERVO0_SET[i],SERVO0_2)
-	# 	else:
-	# 		setRecognize(SERVO0_0r,SERVO0_1)
-	# 	i+=1	
+	#识别并从转盘上抓物体
+	QRposTO(SERVO0_0l,0)
+	# catch_picture("0.jpg")
+	# squ=QRScan("0.jpg")
+	# print(squ)
+	QRposRE(SERVO0_2,0)
+	current_color=0
+	i=0
+	while i<3:
+		# if current_color!=squ[i]:
+		# 	pass
+		# else:
+		# 	setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
+		#   setCatchAngel0(SERVO0_SET[i],SERVO0_2)
+		# 	i+=1
+		setPlaceAngel0(SERVO0_SET[i],SERVO0_2)
+		if i!=2:
+			setCatchAngel0(SERVO0_SET[i],SERVO0_2)
+		else:
+			setRecognize(SERVO0_0r,SERVO0_1)
+		i+=1	
 	
-	# # 在1区放物体
-	# # setRecognize(SERVO0_0r,SERVO0_1)
-	# for i in range(SERVO2_2,SERVO2_1,-2):
-	# 	ServoControl(i,SERVO2)
-	# 	time.sleep(0.02)
-	# for i in range(SERVO0_1,SERVO0_0l,1):
-	# 	ServoControl(i,SERVO0)
-	# 	time.sleep(0.02)
-	# for i in range(SERVO2_1,SERVO2_0,2):
-	# 	ServoControl(i,SERVO2)
-	# 	time.sleep(0.02)
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel2(SERVO0_0l,SERVO0_2)
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# setPlaceAngel2(SERVO0_0m,SERVO0_2)
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel1(SERVO0_0m,SERVO0_1)
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# setPlaceAngel1(SERVO0_0r,SERVO0_1)
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel2(SERVO0_0r,SERVO0_3)
-	# PlaceThing(SERVO3_1,SERVO3_0)
+	# 在1区放物体
+	# setRecognize(SERVO0_0r,SERVO0_1)
+	for i in range(SERVO2_2,SERVO2_1,-2):
+		ServoControl(i,SERVO2)
+		time.sleep(0.02)
+	for i in range(SERVO0_1,SERVO0_0l,1):
+		ServoControl(i,SERVO0)
+		time.sleep(0.02)
+	for i in range(SERVO2_1,SERVO2_0,2):
+		ServoControl(i,SERVO2)
+		time.sleep(0.02)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel2(SERVO0_0l,SERVO0_2)
+	PlaceThing(SERVO3_1,SERVO3_0)
+	setPlaceAngel2(SERVO0_0m,SERVO0_2)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel1(SERVO0_0m,SERVO0_1)
+	PlaceThing(SERVO3_1,SERVO3_0)
+	setPlaceAngel1(SERVO0_0r,SERVO0_1)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel2(SERVO0_0r,SERVO0_3)
+	PlaceThing(SERVO3_1,SERVO3_0)
 
-	# # 在一区抓物体
-	# # set_2=[0,0,0]
-	# # for i in range(4,7):
-	# # 	SET_2[i-4]=SET_1[squ[i]]
+	# 在一区抓物体
+	# set_2=[0,0,0]
+	# for i in range(4,7):
+	# 	SET_2[i-4]=SET_1[squ[i]]
 
-	# SET_2=SET_1
-	# setPlaceAngel2(SERVO0_0l,SERVO0_3)
-	# setCatchAngel2(SERVO0_0l,SET_2[0])
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setPlaceAngel2(SERVO0_0l,SET_2[0])
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# time.sleep(1)
-	# setCatchAngel1(SERVO0_0l,SET_2[1])
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setPlaceAngel1(SERVO0_0m,SET_2[1])
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# time.sleep(1)
-	# setCatchAngel2(SERVO0_0m,SET_2[2])
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setPlaceAngel2(SERVO0_0r,SET_2[2])
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# time.sleep(1)
+	SET_2=SET_1
+	setPlaceAngel2(SERVO0_0l,SERVO0_3)
+	setCatchAngel2(SERVO0_0l,SET_2[0])
+	CatchThing(SERVO3_0,SERVO3_1)
+	setPlaceAngel2(SERVO0_0l,SET_2[0])
+	PlaceThing(SERVO3_1,SERVO3_0)
+	time.sleep(1)
+	setCatchAngel1(SERVO0_0l,SET_2[1])
+	CatchThing(SERVO3_0,SERVO3_1)
+	setPlaceAngel1(SERVO0_0m,SET_2[1])
+	PlaceThing(SERVO3_1,SERVO3_0)
+	time.sleep(1)
+	setCatchAngel2(SERVO0_0m,SET_2[2])
+	CatchThing(SERVO3_0,SERVO3_1)
+	setPlaceAngel2(SERVO0_0r,SET_2[2])
+	PlaceThing(SERVO3_1,SERVO3_0)
+	time.sleep(1)
 
-	# #在二区放物体
-	# setRecognize(SERVO0_0r,SERVO0_0l)
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel2(SERVO0_0l,SERVO0_2)
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# setPlaceAngel2(SERVO0_0m,SERVO0_2)
+	#在二区放物体
+	setRecognize(SERVO0_0r,SERVO0_0l)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel2(SERVO0_0l,SERVO0_2)
+	PlaceThing(SERVO3_1,SERVO3_0)
+	setPlaceAngel2(SERVO0_0m,SERVO0_2)
 
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel1(SERVO0_0m,SERVO0_1)
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# setPlaceAngel1(SERVO0_0r,SERVO0_1)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel1(SERVO0_0m,SERVO0_1)
+	PlaceThing(SERVO3_1,SERVO3_0)
+	setPlaceAngel1(SERVO0_0r,SERVO0_1)
 
-	# CatchThing(SERVO3_0,SERVO3_1)
-	# setCatchAngel2(SERVO0_0r,SERVO0_3)
-	# PlaceThing(SERVO3_1,SERVO3_0)
-	# setPlaceAngel2(SERVO0_0l,SERVO0_3)
+	CatchThing(SERVO3_0,SERVO3_1)
+	setCatchAngel2(SERVO0_0r,SERVO0_3)
+	PlaceThing(SERVO3_1,SERVO3_0)
+	setPlaceAngel2(SERVO0_0l,SERVO0_3)
 
 
 	#调试
@@ -330,10 +330,10 @@ if __name__ == '__main__':
 	# ServoControl(SERVO2_1,SERVO2)
 	# ServoControl(SERVO3_0,SERVO3)
 
-	ServoControl(SERVO0_1,SERVO0)
-	ServoControl(SERVO1_0,SERVO1)
-	ServoControl(SERVO2_0,SERVO2)
-	ServoControl(SERVO3_0,SERVO3)
+	# ServoControl(SERVO0_1,SERVO0)
+	# ServoControl(SERVO1_0,SERVO1)
+	# ServoControl(SERVO2_0,SERVO2)
+	# ServoControl(SERVO3_0,SERVO3)
 	# CatchThing(SERVO3_0,SERVO3_1)
 	# ServoControl(0,15)
 

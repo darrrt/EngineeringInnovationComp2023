@@ -605,15 +605,15 @@ void MotionControl(double vx, double vy, double vz, double t)
 
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
-#define TFT_CS     41
-#define TFT_RST    37   // you can also connect this to the Arduino reset
+#define TFT_CS     43
+#define TFT_RST    39   // you can also connect this to the Arduino reset
                       // in which case, set this #define pin to 0!
-#define TFT_DC     39
+#define TFT_DC     41
 // Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 // Option 2: use any pins but a little slower!
 #define TFT_SCLK 49   // set these to be whatever pins you like!
-#define TFT_MOSI 43   // set these to be whatever pins you like!
+#define TFT_MOSI 47   // set these to be whatever pins you like!
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 void displayTask(long int num=213321){
   tft.drawChar(20+48,0,num/100000+'0',ST7735_WHITE,ST7735_BLACK,2,4);
@@ -903,8 +903,8 @@ void loop()
       {
         public_instruction = 0;
         // Serial.print('F');
-        if (InsNum.current==1){
-          // start();
+        if (InsNum.current==2){
+          start();
         }
 
         // vx vy vw t
@@ -933,6 +933,9 @@ void loop()
         {
           StepperControl(abs(stepper_pos.current), (bool)(stepper_pos.current > 0));
         }
+        Serial.print('K');
+        Serial.print('!');
+        Serial.print('\n');
         for (int i = 0; i < INFO_NUM; i++)
         {
           if (comminfo[i].current != -999)
